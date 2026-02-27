@@ -32,6 +32,8 @@ class CommandRouter:
             "cls": "clear",
             "q": "quit",     # optional: closes the app window
             "exit": "quit",
+            "whomai": "whoami",
+            "sove": "solve",
         }
 
         self.history: List[str] = []

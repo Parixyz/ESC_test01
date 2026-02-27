@@ -243,6 +243,11 @@ class TimeTerminalApp:
 
     def _on_close(self):
         try:
+            if self.current_game is not None:
+                self.current_game.stop()
+        except Exception:
+            pass
+        try:
             self._persist()
         except Exception:
             pass
@@ -344,6 +349,12 @@ class TimeTerminalApp:
         if game_id not in self.game_registry:
             self.print_line(f"[ERR] Unknown game '{game_id}'")
             return
+
+        if self.current_game is not None:
+            try:
+                self.current_game.stop()
+            except Exception:
+                pass
 
         cls = self.game_registry[game_id]
         g = cls(self)
@@ -587,9 +598,217 @@ class TimeTerminalApp:
             self.unlock_node(nxt, f"{game_id} solved")
 
     # ---------------- existing commands you had (keep yours) ----------------
-    # Keep your cmd_hint, cmd_showcode, cmd_train, cmd_ttt, cmd_solve, cmd_unlock, cmd_godskip as you already wrote.
-    # Just ensure they reference `time.time()` (module) not `_time`.
-    # ------------------------------------------------------------
+    def cmd_hint(self, args):
+        nid = self.state["current_node"]
+        hints = self.node_cfg(nid).get("hints", [])
+        if not hints:
+            self.print_line("[HINT] No hints here.")
+            return
+
+        if args:
+            wanted = str(args[0]).lower()
+            hint = next((h for h in hints if str(h.get("id", "")).lower() == wanted), None)
+            if not hint:
+                self.print_line("[ERR] Unknown hint id.")
+                return
+        else:
+            hint = hints[0]
+
+        now = time.time()
+        last = float(self.state.get("last_hint_ts", 0) or 0)
+        wait_left = int(self.hint_cooldown - (now - last))
+        if wait_left > 0:
+            self.print_line(f"[COOLDOWN] Hint available in {wait_left}s.")
+            return
+
+        cost = int(hint.get("cost", 0))
+        cur_score = int(self.state.get("score", 0))
+        if cur_score < cost:
+            self.print_line(f"[LOCKED] Need {cost} score for this hint.")
+            return
+
+        self.state["score"] = cur_score - cost
+        self.state["last_hint_ts"] = now
+        self.print_line(f"[HINT:{hint.get('id', '?')}] {hint.get('text', '')} (-{cost} score)")
+
+    def cmd_showcode(self, args):
+        if self.state["current_node"] != "N3":
+            self.print_line("[LOCKED] showcode is available in N3.")
+            return
+        if not args:
+            self.print_line("Usage: showcode <A|B|C|D>")
+            return
+
+        key = str(args[0]).upper()
+        if key not in {"A", "B", "C", "D"}:
+            self.print_line("Usage: showcode <A|B|C|D>")
+            return
+
+        if self.current_game and hasattr(self.current_game, "show"):
+            self.current_game.show(key)
+        self.state.setdefault("answers", {})["N3_last_code"] = key
+        self.print_line(f"[N3] Current code snippet: {key}")
+
+    def cmd_solve(self, args):
+        if not args:
+            self.print_line("Usage: solve <colors|chess|code|regex|tictactoe|dilemma> ...")
+            return
+
+        kind = str(args[0]).lower()
+        rest = args[1:]
+
+        if kind == "colors":
+            if self.state["current_node"] != "N1":
+                self.print_line("[LOCKED] colors belongs to N1.")
+                return
+            if not rest:
+                self.print_line("Usage: solve colors <MINUTES>")
+                return
+            minutes = self.node_time("N1").split(":")[-1]
+            if str(rest[0]) == str(int(minutes)) or str(rest[0]) == minutes:
+                self.award_game("colors")
+            else:
+                self.print_line("[NO] Incorrect.")
+            return
+
+        if kind == "chess":
+            if self.state["current_node"] != "N2":
+                self.print_line("[LOCKED] chess belongs to N2.")
+                return
+            if not rest:
+                self.print_line("Usage: solve chess <MOVE>")
+                return
+            mv = str(rest[0]).replace("+", "").replace("#", "").strip().lower()
+            if mv in {"ne7", "nxe7", "e7"}:
+                self.award_game("chess")
+            else:
+                self.print_line("[NO] Not the best fork.")
+            return
+
+        if kind == "code":
+            if self.state["current_node"] != "N3":
+                self.print_line("[LOCKED] code belongs to N3.")
+                return
+            if len(rest) < 2:
+                self.print_line("Usage: solve code <A|B|C|D> <N#>")
+                return
+            key = str(rest[0]).upper()
+            node = str(rest[1]).upper()
+            if key in {"A", "B", "C", "D"} and node.startswith("N"):
+                self.award_game("codes")
+            else:
+                self.print_line("[NO] Incorrect format.")
+            return
+
+        if kind == "regex":
+            if self.state["current_node"] != "N4":
+                self.print_line("[LOCKED] regex belongs to N4.")
+                return
+            if not rest:
+                self.print_line("Usage: solve regex <1|2|3|4>")
+                return
+            pick = str(rest[0])
+            answers = self.state.get("answers", {})
+            chosen = answers.get("N4_regex_map", {}).get(pick)
+            correct = answers.get("N4_regex_correct")
+            if chosen and correct and chosen == correct:
+                self.award_game("regex")
+            else:
+                self.print_line("[NO] Pattern mismatch.")
+            return
+
+        if kind == "tictactoe":
+            if self.state["current_node"] != "N5":
+                self.print_line("[LOCKED] tictactoe belongs to N5.")
+                return
+            g = self.current_game
+            if g and getattr(g, "game_id", "") == "tictactoe" and hasattr(g, "sequence_ok") and g.sequence_ok():
+                self.award_game("tictactoe")
+            else:
+                self.print_line("[NO] Complete the board sequence first.")
+            return
+
+        if kind == "dilemma":
+            if self.state["current_node"] != "N5":
+                self.print_line("[LOCKED] dilemma belongs to N5.")
+                return
+            g = self.current_game
+            if g and getattr(g, "game_id", "") == "dilemma" and hasattr(g, "success") and g.success():
+                self.award_game("dilemma")
+            else:
+                self.print_line("[NO] Finish all rounds with higher score.")
+            return
+
+        self.print_line("[ERR] Unknown solve target.")
+
+    def cmd_train(self, args):
+        if not args:
+            self.print_line("Usage: train dilemma")
+            return
+        target = str(args[0]).lower()
+        if target != "dilemma":
+            self.print_line("[ERR] Unknown training module.")
+            return
+        self.mount_game("dilemma")
+
+    def cmd_ttt(self, args):
+        if self.state["current_node"] != "N5":
+            self.print_line("[LOCKED] ttt tools are for N5.")
+            return
+        if not args:
+            self.print_line("Usage: ttt status|reset")
+            return
+        g = self.current_game
+        if not g or getattr(g, "game_id", "") != "tictactoe":
+            self.mount_game("tictactoe")
+            g = self.current_game
+        action = str(args[0]).lower()
+        if action == "status":
+            if hasattr(g, "round_index") and hasattr(g, "results"):
+                self.print_line(f"[TTT] Round {g.round_index + 1}/{g.rounds} Results: {''.join(g.results) or '(none)'}")
+            else:
+                self.print_line("[TTT] status unavailable")
+        elif action == "reset":
+            if hasattr(g, "_reset_round"):
+                g._reset_round()
+                self.print_line("[TTT] Round reset.")
+            else:
+                self.print_line("[TTT] reset unavailable")
+        else:
+            self.print_line("Usage: ttt status|reset")
+
+    def cmd_unlock(self, args):
+        if self.state["current_node"] != "N6":
+            self.print_line("[LOCKED] unlock is only available in N6.")
+            return
+        if not args:
+            self.print_line("Usage: unlock <password>")
+            return
+        expected = self._final_password()
+        provided = " ".join(args).strip()
+        if provided != expected:
+            self.print_line("[NO] Wrong password.")
+            return
+        self.award_game("final")
+        self.print_line("[END] Axis unlocked. Timeline restored.")
+
+    def cmd_godskip(self, args):
+        nid = self.state["current_node"]
+        expected = self.node_cfg(nid).get("godskip")
+        if not args:
+            self.print_line("Usage: godskip <CODE>")
+            return
+        code = " ".join(args).strip()
+        if code != expected:
+            self.print_line("[NO] Invalid godskip code.")
+            return
+        routes = self.node_cfg(nid).get("routes", [])
+        if not routes:
+            self.print_line("[INFO] No further route from this node.")
+            return
+        nxt = routes[0]
+        self.unlock_node(nxt, "godskip")
+        self.enter_node(nxt)
 
     def _final_password(self) -> str:
         tokens = sorted(self.state.get("tokens", []))
