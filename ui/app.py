@@ -662,13 +662,29 @@ class TimeTerminalApp:
                 self.print_line("[LOCKED] colors belongs to N1.")
                 return
             if not rest:
-                self.print_line("Usage: solve colors <MINUTES>")
+                self.print_line("Usage: solve colors <COMBINATIONS>")
                 return
-            minutes = self.node_time("N1").split(":")[-1]
-            if str(rest[0]) == str(int(minutes)) or str(rest[0]) == minutes:
+
+            minutes = int(self.node_time("N1").split(":")[-1])
+            triangle_choices = minutes
+            rectangle_choices = 3
+
+            # two rectangles: red/orange/yellow with repeats allowed -> 3^2
+            rectangle_combos = rectangle_choices ** 2
+            # two triangles: cold colors, no duplicate color -> n * (n-1)
+            triangle_combos = triangle_choices * max(0, triangle_choices - 1)
+            expected = rectangle_combos * triangle_combos
+
+            try:
+                guess = int(str(rest[0]).strip())
+            except Exception:
+                self.print_line("Usage: solve colors <COMBINATIONS>")
+                return
+
+            if guess == expected:
                 self.award_game("colors")
             else:
-                self.print_line("[NO] Incorrect.")
+                self.print_line("[NO] Incorrect combinations count.")
             return
 
         if kind == "chess":

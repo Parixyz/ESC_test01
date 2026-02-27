@@ -14,43 +14,47 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "Jack blinks—then realizes the world is frozen mid-motion."
+          "text": "The lab lights flicker once, then settle into a slow pulse as if the room is breathing."
         },
         {
           "speaker": "NARRATOR",
-          "text": "Dust hangs in the air like pixels that never refresh."
+          "text": "Panels of color glide across the walls, freezing for a heartbeat before shifting again."
         },
         {
           "speaker": "JESSICA",
-          "text": "Don’t panic. Time stuttered. You’re seeing the pause between ticks."
+          "text": "Easy, Aria. This node is teaching you how time counts, not how to panic."
         },
         {
-          "speaker": "JACK",
-          "text": "Who are you?"
-        },
-        {
-          "speaker": "JESSICA",
-          "text": "Jessica. I can’t pull you out—only guide you node by node."
+          "speaker": "ARIA",
+          "text": "So this is a puzzle wearing a light show."
         },
         {
           "speaker": "JESSICA",
-          "text": "Rule one: trust the clock. Time is never decoration here."
+          "text": "Exactly. Rectangles are warm anchors with three options: red, orange, yellow. They may repeat."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Triangles stay in cold tones, and twins are forbidden there. Watch the clock minutes: that tells you how many cold exits exist."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Now answer directly: how many total combinations can this scene make?"
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "The node time is fixed. Use the MINUTES as a number.",
+          "text": "Use node time 04:10. The minutes (10) are the number of available cold colors for triangles.",
           "cost": 2
         },
         {
           "id": "h2",
-          "text": "Triangles never repeat a color until the cycle is exhausted.",
+          "text": "Two triangles cannot share a color, so count ordered picks: 10 x 9.",
           "cost": 4
         },
         {
           "id": "h3",
-          "text": "Two rectangles are anchors: red and orange never change.",
+          "text": "Each rectangle can be red/orange/yellow and can duplicate: 3 x 3. Multiply rectangle and triangle counts.",
           "cost": 6
         }
       ],
