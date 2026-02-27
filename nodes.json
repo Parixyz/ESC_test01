@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Jack’s Time Terminal",
-    "hint_cooldown_seconds": 300
+    "hint_cooldown_seconds": 90
   },
   "nodes": {
     "N1": {
@@ -14,44 +14,53 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "Jack blinks—then realizes the world is frozen mid-motion."
+          "text": "The Color Lab wakes like a theatre: ceiling strips hum alive, glass panels flare, and the air itself seems to hold its breath."
         },
         {
           "speaker": "NARRATOR",
-          "text": "Dust hangs in the air like pixels that never refresh."
+          "text": "Six shapes drift into formation—three rectangles above, three triangles below—like a lock waiting for the right count."
         },
         {
           "speaker": "JESSICA",
-          "text": "Don’t panic. Time stuttered. You’re seeing the pause between ticks."
+          "text": "Steady, {player}. This first node is a ritual of counting, not guessing."
         },
         {
-          "speaker": "JACK",
-          "text": "Who are you?"
-        },
-        {
-          "speaker": "JESSICA",
-          "text": "Jessica. I can’t pull you out—only guide you node by node."
+          "speaker": "ARIA",
+          "text": "Then every color change is a clue, not decoration."
         },
         {
           "speaker": "JESSICA",
-          "text": "Rule one: trust the clock. Time is never decoration here."
+          "text": "Right. The 3 rectangles are warm anchors: red, orange, yellow. They may repeat without penalty."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "The 3 triangles must stay cold, and no two triangles can share the same color in one scene."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Trust the clock: the minutes reveal how many cold triangle colors exist. Now answer directly—how many total combinations are possible?"
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "The node time is fixed. Use the MINUTES as a number.",
+          "text": "Use node time 04:10. Minutes = 10, so triangles draw from 10 cold colors.",
           "cost": 2
         },
         {
           "id": "h2",
-          "text": "Triangles never repeat a color until the cycle is exhausted.",
+          "text": "There are 3 triangles with no repeats, so count ordered picks: 10 x 9 x 8.",
           "cost": 4
         },
         {
           "id": "h3",
-          "text": "Two rectangles are anchors: red and orange never change.",
+          "text": "There are 3 rectangles with red/orange/yellow and repeats allowed: 3 x 3 x 3. Multiply with the triangle count.",
           "cost": 6
+        },
+        {
+          "id": "h4",
+          "text": "Stuck too long? You can use solvelose colors, but answer reveal unlocks only after 5 minutes.",
+          "cost": 8
         }
       ],
       "games": [
@@ -59,7 +68,8 @@
           "id": "colors",
           "title": "Chromatic Drift",
           "solve_points": 12,
-          "token": "AURORA"
+          "token": "AURORA",
+          "answer": 19440
         }
       ]
     },
@@ -73,31 +83,36 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "Switchboards click like chess clocks. Every click is a branch."
+          "text": "Switchboards clack like thunder while brass relays blink in strict rhythm."
         },
         {
           "speaker": "JESSICA",
-          "text": "This node rewards precision. Think in moves and consequences."
+          "text": "{player}, this node rewards precision. A knight can strike two futures in one leap."
         },
         {
           "speaker": "JACK",
-          "text": "So… I fork time itself."
+          "text": "So one move should threaten both king and power."
         },
         {
           "speaker": "JESSICA",
-          "text": "Exactly. A fork is one action attacking multiple futures."
+          "text": "Exactly. Find the fork square where panic and material loss happen together."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "The winning move is a knight fork—king plus a major piece.",
+          "text": "The move is a knight fork on king + queen pressure. Visualize Ne7 first.",
           "cost": 3
         },
         {
           "id": "h2",
-          "text": "Write the move like Ne7 (piece + square).",
+          "text": "Use standard move form: piece + square. Example format: Ne7.",
           "cost": 5
+        },
+        {
+          "id": "h3",
+          "text": "If your move attacks only one target, it is not the fork you want.",
+          "cost": 6
         }
       ],
       "games": [
@@ -105,7 +120,8 @@
           "id": "chess",
           "title": "Forked Timeline",
           "solve_points": 15,
-          "token": "KNIGHT"
+          "token": "KNIGHT",
+          "answer": "Ne7"
         }
       ]
     },
@@ -119,35 +135,62 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "The walls are glass. Code is etched where advertisements should be."
+          "text": "Glass walls bloom with code, branches, and overwrites like a storm of logic."
         },
         {
           "speaker": "JESSICA",
-          "text": "This node tests prediction. If you can predict the branch, you can escape the loop."
+          "text": "{player}, this is your routing exam: three short questions, no lucky guessing."
         },
         {
           "speaker": "JACK",
-          "text": "So I’m debugging time."
+          "text": "So I trace every assignment to the final destination."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Yes. First wrong try on each question costs points—slow thinking beats fast typing."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "The wrong branch is never random; it is usually one assumption made too quickly."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "Run it mentally. Track the variable that decides the final node.",
+          "text": "There are three questions now: A, B, C. Solve each with: solve code <ID> <N#>.",
           "cost": 3
         },
         {
           "id": "h2",
-          "text": "Watch modulo conditions; they decide which branch overwrites the destination.",
+          "text": "Use showcode A/B/C and track final assignment, not the first value.",
+          "cost": 5
+        },
+        {
+          "id": "h3",
+          "text": "First wrong attempt on each question costs score once, so verify before submitting.",
           "cost": 6
         }
       ],
       "games": [
         {
           "id": "codes",
-          "title": "Where Will Jack Go?",
+          "title": "Where Did Jack Go?",
           "solve_points": 14,
-          "token": "TRACE"
+          "token": "TRACE",
+          "answer": [
+            {
+              "snippet": "A",
+              "node": "N4"
+            },
+            {
+              "snippet": "B",
+              "node": "N5"
+            },
+            {
+              "snippet": "C",
+              "node": "N6"
+            }
+          ]
         }
       ]
     },
@@ -161,26 +204,39 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "Text rewrites itself like a memory trying to stabilize."
+          "text": "The room becomes a living console: strings mutate while regex gates pulse in sequence."
         },
         {
           "speaker": "JESSICA",
-          "text": "Patterns are gates. Choose wrong and the story continues—without reward."
+          "text": "{player}, watch before you answer. Variations reveal the rule better than any lecture."
         },
         {
           "speaker": "JACK",
-          "text": "So it’s not fail-stop. It’s fail-soft."
+          "text": "Four samples, five regex choices, then commit."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Right. Four rounds total. You gain and lose score each round, so stay sharp."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "Each regex choice feels like choosing a language to describe chaos."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "Anchor symbols: hyphen, digits, suffix. Don’t ignore boundaries ^ and $.",
+          "text": "Read all 4 changing sample strings. Your regex must match every shown variation.",
           "cost": 3
         },
         {
           "id": "h2",
-          "text": "Pick the option that matches ALL generated strings, not just one.",
+          "text": "You choose among 5 regex options each round. Correct = +2, wrong = -2.",
+          "cost": 5
+        },
+        {
+          "id": "h3",
+          "text": "Complete 4 rounds, then the node unlocks regardless of total score.",
           "cost": 6
         }
       ],
@@ -189,7 +245,8 @@
           "id": "regex",
           "title": "Pattern Storm",
           "solve_points": 10,
-          "token": "ANCHOR"
+          "token": "ANCHOR",
+          "answer": "4 rounds of regex picks; scoring is dynamic"
         }
       ]
     },
@@ -203,50 +260,52 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "A city of holograms negotiates with futures."
+          "text": "A neon skyline flickers as two trials spin up side by side."
         },
         {
           "speaker": "JESSICA",
-          "text": "Two trials. One teaches that losing isn’t always losing."
+          "text": "{player}, first complete the grid trial. Then enter Nim, where tempo decides everything."
         },
         {
           "speaker": "JACK",
-          "text": "That sounds like a trap."
+          "text": "So first-versus-second is the real puzzle."
         },
         {
           "speaker": "JESSICA",
-          "text": "It is. But it’s also a lesson about time: meaning depends on the scheme."
+          "text": "Exactly. I can guide your eyes, but only you can discover the winning rhythm."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "TicTacToe sequence is derived from node time digits.",
+          "text": "In the grid trial, finish all 4 rounds before solving.",
           "cost": 4
         },
         {
           "id": "h2",
-          "text": "Sometimes you must lose a round to satisfy the sequence.",
-          "cost": 7
+          "text": "In Nim, players remove 1-3 stones; whoever takes the last stone loses.",
+          "cost": 5
         },
         {
           "id": "h3",
-          "text": "In the dilemma, your opponent mirrors you after round 1.",
-          "cost": 5
+          "text": "Think in modulo-4 control and whether you want first or second tempo.",
+          "cost": 7
         }
       ],
       "games": [
         {
           "id": "tictactoe",
-          "title": "Win/Lose Sequence",
+          "title": "Crossroads Grid",
           "solve_points": 18,
-          "token": "PARADOX"
+          "token": "PARADOX",
+          "answer": "complete 4 rounds"
         },
         {
           "id": "dilemma",
-          "title": "Iterated Dilemma",
+          "title": "Nim Lab",
           "solve_points": 16,
-          "token": "TRUST"
+          "token": "TRUST",
+          "answer": "win the Nim run (take 1-3, last stone loses)"
         }
       ]
     },
@@ -258,38 +317,49 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "The final door is not a door."
-        },
-        {
-          "speaker": "NARRATOR",
-          "text": "It is a choice written in a language time understands."
+          "text": "The Axis opens as a retro terminal carnival, half puzzle chamber and half stand-up club."
         },
         {
           "speaker": "JESSICA",
-          "text": "If you made it here, you’ve collected fragments. Combine them—carefully."
+          "text": "{player}, final checkpoint: a stack of ridiculous computer riddles. Enjoy this one."
         },
         {
           "speaker": "JACK",
-          "text": "Then the loop ends?"
+          "text": "After timeline surgery, we end with joke puzzles?"
         },
         {
           "speaker": "JESSICA",
-          "text": "Or it begins with you in control."
+          "text": "Yes—and you earned the easy ending. Any unlock answer works here."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "In the final log, computer science unfolds as a human story: curiosity, abstraction, and shared tools that scale imagination."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "Final password is a hash-derived phrase from your earned tokens.",
-          "cost": 10
+          "text": "Type unlock <anything>. Comedy mode accepts any answer.",
+          "cost": 1
+        },
+        {
+          "id": "h2",
+          "text": "Try silly inputs: unlock potato, unlock recursion, unlock coffee-overflow.",
+          "cost": 1
+        },
+        {
+          "id": "h3",
+          "text": "Riddles are for fun now—finish strong and enjoy the ending.",
+          "cost": 1
         }
       ],
       "games": [
         {
           "id": "final",
-          "title": "Axis Lock",
+          "title": "Terminal Comedy Gauntlet",
           "solve_points": 50,
-          "token": "AXIS"
+          "token": "AXIS",
+          "answer": "any unlock answer works"
         }
       ]
     }

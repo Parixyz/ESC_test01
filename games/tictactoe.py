@@ -10,7 +10,7 @@ from games.base import GameBase
 
 class TicTacToeSequence(GameBase):
     game_id = "tictactoe"
-    title = "Win/Lose Sequence"
+    title = "Crossroads Grid"
 
     def __init__(self, app):
         super().__init__(app)
@@ -30,7 +30,7 @@ class TicTacToeSequence(GameBase):
         )
         ttk.Label(
             parent,
-            text="Placeholder TicTacToe.\nPlay here; solve via terminal: solve tictactoe",
+            text="Grid trial: survive four rounds under pressure.\nThen solve via terminal: solve tictactoe",
             wraplength=420,
             justify="left",
         ).pack(padx=12, pady=(0, 8), anchor="nw")
@@ -63,6 +63,8 @@ class TicTacToeSequence(GameBase):
             b.config(text=" ")
             b.state(["!disabled"])
         self._update_status()
+        if hasattr(self.app, "safe_autosave"):
+            self.app.safe_autosave()
 
     def _player_move(self, idx):
         if self.round_index >= self.rounds:
@@ -120,6 +122,8 @@ class TicTacToeSequence(GameBase):
 
         self.safe_print(f"[TTT] Round ended: {out}")
         self._update_status()
+        if hasattr(self.app, "safe_autosave"):
+            self.app.safe_autosave()
 
     def sequence_ok(self):
         # placeholder: accept any completed run for now
