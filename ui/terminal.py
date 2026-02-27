@@ -1,4 +1,3 @@
-# ui/terminal.py
 import tkinter as tk
 from tkinter import ttk
 
@@ -17,11 +16,9 @@ class TerminalView:
         self._namebar = None
         self._name_entry = None
 
-        # prevents multiple overlapping animations from interleaving
         self._typing_job = None
         self._typing_active = False
 
-    # ---------------- NAME BAR ----------------
     def pack_namebar(self, parent, on_set_name):
         if self._namebar is not None:
             return
@@ -63,7 +60,6 @@ class TerminalView:
     def set_name_status(self, text: str):
         self._name_status_var.set(text or "")
 
-    # ---------------- OUTPUT ----------------
     def pack(self, parent):
         if self.output is not None:
             return
@@ -86,7 +82,6 @@ class TerminalView:
         self.output.pack(side="left", fill="both", expand=True)
         sc.pack(side="right", fill="y")
 
-    # ---------------- INPUT ROW ----------------
     def pack_input(self, parent, on_enter):
         row = ttk.Frame(parent)
         row.pack(fill="x", padx=10, pady=(0, 10))
@@ -97,7 +92,6 @@ class TerminalView:
         self.entry.bind("<Return>", lambda e: on_enter())
         ttk.Button(row, text="Send", command=on_enter).pack(side="left", padx=(8, 0))
 
-    # ---------------- Helpers ----------------
     def focus(self):
         if self.entry is not None:
             self.entry.focus_set()
@@ -119,7 +113,6 @@ class TerminalView:
         self.output.delete("1.0", "end")
         self.output.config(state="disabled")
 
-    # ---------------- Typewriter (FIXED) ----------------
     def _cancel_typing(self):
         self._typing_active = False
         if self._typing_job is not None and self.output is not None:
@@ -141,7 +134,6 @@ class TerminalView:
         self._cancel_typing()
         self._typing_active = True
 
-        # enable once
         self.output.config(state="normal")
 
         i = 0

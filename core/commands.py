@@ -1,9 +1,3 @@
-# core/commands.py
-# Fully working CommandRouter (no stubs inside this file).
-# Note: this router assumes your app implements methods like:
-#   cmd_status, cmd_time, cmd_nodes, cmd_routes, cmd_travel, cmd_games, cmd_play,
-#   cmd_story, cmd_hint, cmd_showcode, cmd_solve, cmd_train, cmd_ttt, cmd_unlock, cmd_godskip
-# and has: app.print_line(str), app.ui.terminal.clear(), app.state (dict), app.enter_node(node_id), etc.
 
 from __future__ import annotations
 
@@ -19,18 +13,17 @@ class CommandSpec:
     usage: str
     short: str
     long: str
-    fn: Callable  # fn(app, args) -> None
+    fn: Callable
 
 
 class CommandRouter:
     def __init__(self, app):
         self.app = app
 
-        # simple aliases (single-token)
         self.aliases: Dict[str, str] = {
             "?": "help",
             "cls": "clear",
-            "q": "quit",     # optional: closes the app window
+            "q": "quit",
             "exit": "quit",
             "whomai": "whoami",
             "sove": "solve",
@@ -42,7 +35,6 @@ class CommandRouter:
         self._register_builtin()
         self._register_app_hooks()
 
-    # ---------------- registration ----------------
 
     def _register(self, spec: CommandSpec) -> None:
         self.cmds[spec.name] = spec
@@ -150,21 +142,25 @@ class CommandRouter:
             ("status",   "status",                 "Show status line.",                         lambda a, x: a.cmd_status()),
             ("score",    "score",                  "Show score.",                               lambda a, x: a.print_line(f"Score: {a.state.get('score', 0)}")),
             ("time",     "time",                   "Show current node time.",                   lambda a, x: a.cmd_time()),
+            ("isgoal",   "isGoal",                 "Show distance to goal node and timeline note.", lambda a, x: a.cmd_isgoal(x)),
             ("nodes",    "nodes",                  "List nodes and unlocked nodes.",            lambda a, x: a.cmd_nodes()),
             ("routes",   "routes",                 "Show routes from current node.",            lambda a, x: a.cmd_routes()),
             ("travel",   "travel <N#>",            "Travel to an unlocked connected node.",      lambda a, x: a.cmd_travel(x)),
+            ("travelgod","travelgod <N#> <CODE>",   "Travel directly with a node god code.",      lambda a, x: a.cmd_travelgod(x)),
             ("games",    "games",                  "List games in current node.",               lambda a, x: a.cmd_games()),
             ("play",     "play <game_id>",         "Mount a game (if allowed in node).",        lambda a, x: a.cmd_play(x)),
             ("story",    "story | story all",      "Advance dialogue.",                         lambda a, x: a.cmd_story(x)),
             ("hint",     "hint | hint h1",         "Use a hint (cooldown + score cost).",       lambda a, x: a.cmd_hint(x)),
-            ("showcode", "showcode <A|B|C|D>",     "Show a code snippet (N3).",                 lambda a, x: a.cmd_showcode(x)),
+            ("showcode", "showcode <A|B|C>",     "Show a code snippet (N3).",                 lambda a, x: a.cmd_showcode(x)),
             ("solve",    "solve ...",              "Solve puzzles.",                            lambda a, x: a.cmd_solve(x)),
+            ("solvelose","solvelose <game_id>",     "Reveal answer after 5-minute wait.",          lambda a, x: a.cmd_solvelose(x)),
             ("train",    "train dilemma",          "Training module.",                          lambda a, x: a.cmd_train(x)),
             ("ttt",      "ttt status|reset",       "TicTacToe utilities (N5).",                 lambda a, x: a.cmd_ttt(x)),
-            ("unlock",   "unlock <password>",      "Final unlock (N6).",                        lambda a, x: a.cmd_unlock(x)),
-            ("godskip",  "godskip <CODE>",         "Dev skip.",                                 lambda a, x: a.cmd_godskip(x)),
+            ("unlock",   "unlock <anything>",      "Goal unlock (N7).",               lambda a, x: a.cmd_unlock(x)),
+            ("godskip",  "godskip <CODE>",         "Dev skip (e.g. GOD-N1-4412).",             lambda a, x: a.cmd_godskip(x)),
             ("selftest", "selftest <PASSWORD>", "Run internal smoke tests (password required).",
              lambda a, x: a.cmd_selftest(x)),
+            ("resetuser","resetuser Ifuckedup",   "Reset user save/profile.",                    lambda a, x: a.cmd_resetuser(x)),
         ]
 
         for name, usage, short, fn in hooks:
@@ -173,10 +169,9 @@ class CommandRouter:
                 usage=usage,
                 short=short,
                 long=short,
-                fn=lambda app, args, _fn=fn: _fn(app, args)  # capture fn safely
+                fn=lambda app, args, _fn=fn: _fn(app, args)
             ))
 
-    # ---------------- public API ----------------
 
     def run(self, raw: str) -> None:
         raw = (raw or "").strip()
@@ -185,7 +180,6 @@ class CommandRouter:
 
         self.history.append(raw)
 
-        # parse like a shell (supports quotes)
         try:
             parts = shlex.split(raw)
         except Exception:
@@ -195,18 +189,15 @@ class CommandRouter:
         cmd = parts[0]
         args = parts[1:]
 
-        # alias expansion (single-token alias)
         if cmd in self.aliases:
             expanded = self.aliases[cmd]
             new_raw = (expanded + " " + " ".join(args)).strip()
             return self.run(new_raw)
 
-        # let active game consume command first (optional)
         try:
             if getattr(self.app, "current_game", None) and self.app.current_game.on_command(cmd, args):
                 return
         except Exception:
-            # never let a game crash the terminal
             pass
 
         spec = self.cmds.get(cmd)
@@ -219,7 +210,6 @@ class CommandRouter:
         except Exception as e:
             self.app.print_line(f"[ERR] command failed: {e}")
 
-    # ---------------- builtins ----------------
 
     def _help(self, app, args) -> None:
         if args:
@@ -273,7 +263,6 @@ class CommandRouter:
                 app.print_line(f"  {k} = {self.aliases[k]}")
             return
 
-        # delete
         if args[0] == "-d":
             if len(args) < 2:
                 app.print_line("Usage: alias -d name")
@@ -286,7 +275,6 @@ class CommandRouter:
                 app.print_line("[ERR] alias not found.")
             return
 
-        # set
         s = args[0]
         if "=" not in s:
             app.print_line("Usage: alias name=value  (or: alias -d name)")
@@ -362,7 +350,6 @@ class CommandRouter:
             app.print_line("[ERR] no such var")
 
     def _quit(self, app, args) -> None:
-        # closes the window; your app WM_DELETE should save.
         try:
             app.print_line("[OK] quitting...")
         except Exception:

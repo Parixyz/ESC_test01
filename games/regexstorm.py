@@ -1,9 +1,6 @@
-# stub
-# games/regexstorm.py
 from __future__ import annotations
 
 import random
-import tkinter as tk
 from tkinter import ttk
 
 from games.base import GameBase
@@ -17,7 +14,7 @@ class RegexStorm(GameBase):
         super().__init__(app)
         self.running = False
         self.after_id = None
-        self.lbl = None
+        self.samples_lbl = None
         self.opts = []
 
     def mount(self, parent):
@@ -28,22 +25,26 @@ class RegexStorm(GameBase):
         )
         ttk.Label(
             parent,
-            text="Text changes every ~3 seconds.\nSolve: solve regex <1|2|3|4>",
+            text=(
+                "Watch 4 changing sample strings on the left.\n"
+                "Pick the one regex that matches all shown variations.\n"
+                "Solve: solve regex <1|2|3|4|5>  (4 rounds, +/- points each round)"
+            ),
             wraplength=420,
             justify="left",
         ).pack(padx=12, pady=(0, 8), anchor="nw")
 
-        self.lbl = ttk.Label(parent, text="(generating...)", wraplength=420, justify="left")
-        self.lbl.pack(padx=12, pady=(0, 10), anchor="nw")
+        self.samples_lbl = ttk.Label(parent, text="(generating samples...)", wraplength=420, justify="left")
+        self.samples_lbl.pack(padx=12, pady=(0, 10), anchor="nw")
 
         box = ttk.Frame(parent)
         box.pack(padx=12, pady=(0, 12), fill="x")
 
         self.opts = []
-        for i in range(4):
-            l = ttk.Label(box, text=f"{i+1}) ...", wraplength=420, justify="left")
-            l.pack(anchor="nw", pady=2)
-            self.opts.append(l)
+        for i in range(5):
+            lbl = ttk.Label(box, text=f"{i+1}) ...", wraplength=420, justify="left")
+            lbl.pack(anchor="nw", pady=2)
+            self.opts.append(lbl)
 
         self.running = True
         self._tick()
@@ -57,58 +58,45 @@ class RegexStorm(GameBase):
                 pass
         self.after_id = None
 
+    def _new_samples(self):
+        prefix = random.choice(["TIME", "NODE", "JACK", "ECHO", "TRACE"])
+        suffix = random.choice(["A", "B", "C"])
+        return [f"{prefix}-{random.randint(10, 9999)}{suffix}" for _ in range(4)]
+
     def _tick(self):
         if not self.running:
             return
 
-        prefix = random.choice(["TIME", "NODE", "JACK", "ECHO"])
-        digits = random.randint(10, 9999)
-        suffix = random.choice(["A", "B", "C"])
-        text = f"{prefix}-{digits}{suffix}"
-
-        patterns = [
-            r"^(TIME|NODE|JACK|ECHO)-\d+[ABC]$",
-            r"^[A-Z]{4}-\d{2,4}[ABC]$",
-            r"^(TIME|NODE)-\d+[A-C]$",
-            r"^[A-Z]+-\d+[A-Z]$",
+        samples = self._new_samples()
+        correct = r"^(TIME|NODE|JACK|ECHO|TRACE)-\d{2,4}[ABC]$"
+        choices = [
+            correct,
+            r"^(TIME|NODE|JACK|ECHO|TRACE)\d{2,4}[ABC]$",
+            r"^[A-Z]+-\d{5}[ABC]$",
+            r"^[A-Z]+-\d{2,4}$",
+            r"^\d{2,4}-[A-Z]+[ABC]$",
         ]
-        distractors = [
-            r"^(TIME|NODE|JACK|ECHO)\d+[ABC]$",
-            r"^[A-Z]{4}-\d{5}[ABC]$",
-            r"^(TIME|NODE|JACK|ECHO)-[A-Z]+[ABC]$",
-            r"^\d+-[A-Z]{4}[ABC]$",
-            r"^[A-Z]{4}-\d{2,4}$",
-            r"^(TIME|NODE|JACK|ECHO)-\d+$",
-        ]
-
-        correct = random.choice(patterns)
-        choices = [correct]
-        random.shuffle(distractors)
-        for d in distractors:
-            if d not in choices:
-                choices.append(d)
-            if len(choices) == 4:
-                break
         random.shuffle(choices)
 
-        if self.lbl:
-            self.lbl.config(text=f"TEXT:  {text}")
-        for i, l in enumerate(self.opts):
+        if self.samples_lbl:
+            block = "\n".join([f"• {s}" for s in samples])
+            self.samples_lbl.config(text=f"Samples:\n{block}")
+
+        for i, lbl in enumerate(self.opts):
             try:
-                l.config(text=f"{i+1}) {choices[i]}")
+                lbl.config(text=f"{i+1}) {choices[i]}")
             except Exception:
                 pass
 
-        # optionally store for solve-checking (if your app uses these keys)
         try:
             self.app.state.setdefault("answers", {})
-            self.app.state["answers"]["N4_regex_text"] = text
+            self.app.state["answers"]["N4_regex_samples"] = samples
             self.app.state["answers"]["N4_regex_correct"] = correct
-            self.app.state["answers"]["N4_regex_map"] = {str(i+1): choices[i] for i in range(4)}
+            self.app.state["answers"]["N4_regex_map"] = {str(i + 1): choices[i] for i in range(5)}
         except Exception:
             pass
 
         try:
-            self.after_id = self.app.root.after(3000, self._tick)
+            self.after_id = self.app.root.after(5500, self._tick)
         except Exception:
             self.running = False
