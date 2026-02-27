@@ -360,12 +360,18 @@ class CommandRouter:
             app.print_line("[ERR] no such var")
 
     def _quit(self, app, args) -> None:
-        # closes the window; your app WM_DELETE should save.
+        # closes the window and prefers app close handler so save/cleanup run.
         try:
             app.print_line("[OK] quitting...")
         except Exception:
             pass
         try:
-            app.root.destroy()
+            if hasattr(app, "_on_close"):
+                app._on_close()
+            else:
+                app.root.destroy()
         except Exception:
-            pass
+            try:
+                app.root.destroy()
+            except Exception:
+                pass
