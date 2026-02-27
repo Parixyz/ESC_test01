@@ -9,7 +9,7 @@ from games.base import GameBase
 
 class AxisLock(GameBase):
     game_id = "final"
-    title = "Terminal Comedy Gauntlet"
+    title = "Sequence Vault + CS Sudoku"
 
     def mount(self, parent):
         super().mount(parent)
@@ -20,40 +20,39 @@ class AxisLock(GameBase):
         ttk.Label(
             parent,
             text=(
-                "Final node: a stack of funny computer riddles.\n"
-                "1) Why do devs hate nature? Too many bugs.\n"
-                "2) Why did cache break up with RAM? Too clingy.\n"
-                "3) Why was the keyboard sleepy? It had two shifts.\n"
-                "4) Why did the loop stop? It needed a break.\n"
-                "5) Why was the function calm? It had closure.\n"
-                "6) Why did the bug visit therapy? Stack trauma.\n"
-                "7) Why did the byte blush? It saw a naked pointer.\n"
-                "8) Why did the server sing? It had uptime confidence.\n"
-                "9) Why did recursion fail standup? Same punchline forever.\n"
-                "10) Why was SQL dramatic? Too many joins.\n"
-                "11) Why did the IDE meditate? To reduce exceptions.\n"
-                "12) Why did the process nap? It was waiting on I/O.\n\n"
-                "Bonus visual: Binary Sudoku board below.\n"
-                "Type: unlock <anything>  (you win anyway)."
+                "1970 Sequence Vault (fun mode)\n"
+                "Solve these for fun; unlocking still works either way.\n\n"
+                "Riddle 1 (binary growth): 1, 2, 4, 8, 16, ?\n"
+                "Riddle 2 (Fibonacci signal): 1, 1, 2, 3, 5, 8, ?\n"
+                "Riddle 3 (hex ladder): 10, 16, 26, 42, ?\n"
+                "Riddle 4 (cache stride): 3, 7, 15, 31, ?\n\n"
+                "Bonus: Computer-science Sudoku board below\n"
+                "(filled cells are milestone years in CS history).\n"
+                "Type: unlock <anything> to continue to the goal node."
             ),
-            wraplength=420,
+            wraplength=440,
             justify="left",
         ).pack(padx=12, pady=(0, 10), anchor="nw")
 
-        canvas = tk.Canvas(parent, width=420, height=220, bg="#0b1220", highlightthickness=0)
+        canvas = tk.Canvas(parent, width=440, height=240, bg="#0a101c", highlightthickness=0)
         canvas.pack(padx=12, pady=(0, 12), anchor="nw")
 
         board = [
-            [5, 3, 0, 0, 7, 0, 0, 0, 0],
-            [6, 0, 0, 1, 9, 5, 0, 0, 0],
-            [0, 9, 8, 0, 0, 0, 0, 6, 0],
-            [8, 0, 0, 0, 6, 0, 0, 0, 3],
-            [4, 0, 0, 8, 0, 3, 0, 0, 1],
-            [7, 0, 0, 0, 2, 0, 0, 0, 6],
-            [0, 6, 0, 0, 0, 0, 2, 8, 0],
-            [0, 0, 0, 4, 1, 9, 0, 0, 5],
-            [0, 0, 0, 0, 8, 0, 0, 7, 9],
+            [7, 0, 0, 0, 1, 0, 0, 0, 0],
+            [0, 9, 0, 4, 0, 0, 8, 0, 0],
+            [0, 0, 5, 0, 0, 0, 0, 6, 0],
+            [0, 4, 0, 0, 7, 0, 0, 0, 9],
+            [1, 0, 0, 9, 0, 6, 0, 0, 8],
+            [6, 0, 0, 0, 2, 0, 0, 4, 0],
+            [0, 6, 0, 0, 0, 0, 5, 0, 0],
+            [0, 0, 2, 0, 0, 8, 0, 9, 0],
+            [0, 0, 0, 0, 6, 0, 0, 0, 1],
         ]
+        milestone = {
+            1: "1941 Z3", 2: "1947 Transistor", 3: "1958 IC", 4: "1969 ARPANET",
+            5: "1970 UNIX", 6: "1971 µP", 7: "1989 WWW", 8: "1991 Linux", 9: "2006 Cloud"
+        }
+
         cell = 22
         ox, oy = 12, 12
         for r in range(9):
@@ -63,7 +62,7 @@ class AxisLock(GameBase):
                 canvas.create_rectangle(x1, y1, x2, y2, fill="#101a2f", outline="#1f2b46")
                 val = board[r][c]
                 txt = str(val) if val else "."
-                color = "#d0f0ff" if val else "#4e6a8f"
+                color = "#c9f0ff" if val else "#425c82"
                 canvas.create_text((x1 + x2) / 2, (y1 + y2) / 2, text=txt, fill=color, font=("Consolas", 9, "bold"))
 
         for i in range(10):
@@ -71,9 +70,13 @@ class AxisLock(GameBase):
             canvas.create_line(ox, oy + i * cell, ox + 9 * cell, oy + i * cell, fill="#4f78a3", width=w)
             canvas.create_line(ox + i * cell, oy, ox + i * cell, oy + 9 * cell, fill="#4f78a3", width=w)
 
-        canvas.create_text(260, 112,
-                           text=("Computer Science Ending:\n"
-                                 "From logic gates to algorithms,\n"
-                                 "from memory to machines,\n"
-                                 "you learned to reason under uncertainty."),
-                           fill="#9de2ff", anchor="w", justify="left", font=("Segoe UI", 9, "bold"))
+        legend = "\n".join([f"{k}: {v}" for k, v in milestone.items()])
+        canvas.create_text(
+            235,
+            14,
+            text="CS Milestone Key\n" + legend,
+            fill="#9de2ff",
+            anchor="nw",
+            justify="left",
+            font=("Segoe UI", 8, "bold"),
+        )

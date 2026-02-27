@@ -162,6 +162,12 @@ class TimeTerminalApp:
     def node_time(self, node_id: str) -> str:
         return self.node_cfg(node_id).get("time", "??:??")
 
+    def node_year(self, node_id: str) -> int:
+        try:
+            return int(self.node_cfg(node_id).get("year", 0))
+        except Exception:
+            return 0
+
     def format_story_text(self, text: str) -> str:
         player = self.state.get("player_name") or "Traveler"
         try:
@@ -408,7 +414,44 @@ class TimeTerminalApp:
 
     def cmd_time(self):
         nid = self.state["current_node"]
-        self.print_line(f"[TIME] Node {nid}: {self.node_time(nid)} (fixed)")
+        year = self.node_year(nid)
+        extra = f" | Year {year}" if year else ""
+        self.print_line(f"[TIME] Node {nid}: {self.node_time(nid)} (fixed){extra}")
+
+    def cmd_isgoal(self, args):
+        cur = self.state["current_node"]
+        goal = str(self.cfg.get("meta", {}).get("goal_node", "N7")).upper()
+        if goal not in self.cfg.get("nodes", {}):
+            self.print_line("[ERR] Goal node is not configured.")
+            return
+
+        cur_time = self.node_time(cur)
+        goal_time = self.node_time(goal)
+
+        def to_minutes(hhmm: str) -> int:
+            parts = str(hhmm).split(":", 1)
+            if len(parts) != 2:
+                return 0
+            return int(parts[0]) * 60 + int(parts[1])
+
+        try:
+            diff_min = abs(to_minutes(cur_time) - to_minutes(goal_time))
+        except Exception:
+            diff_min = 0
+
+        cur_year = self.node_year(cur)
+        goal_year = self.node_year(goal)
+        year_delta = abs(goal_year - cur_year)
+
+        self.print_line(f"[GOAL] Current node: {cur}  ->  Goal node: {goal}")
+        self.print_line(f"[GOAL] Time difference: {diff_min} minute(s).")
+        self.print_line(f"[GOAL] Timeline difference: {year_delta} year(s).")
+
+        era_story = self.node_cfg(cur).get("era_story")
+        if era_story:
+            self.print_line(f"[TIMELINE] {era_story}")
+        if cur == goal:
+            self.print_line("[GOAL] You are at the goal node.")
 
     def cmd_nodes(self):
         nodes = sorted(self.cfg.get("nodes", {}).keys())
@@ -887,8 +930,8 @@ class TimeTerminalApp:
         self.print_line(f"[REVEAL:{game_id}] {answer}")
 
     def cmd_resetuser(self, args):
-        if not args or str(args[0]).upper() != "CONFIRM":
-            self.print_line("Usage: resetuser CONFIRM")
+        if not args or str(args[0]) != "Ifuckedup":
+            self.print_line("Usage: resetuser Ifuckedup")
             return
 
         try:
@@ -939,27 +982,47 @@ class TimeTerminalApp:
 
     def cmd_unlock(self, args):
         if self.state["current_node"] != "N6":
-            self.print_line("[LOCKED] unlock is only available in N6.")
+            self.print_line("[LOCKED] unlock is only available in N6 (Sequence Vault).")
             return
         if not args:
             self.print_line("Usage: unlock <anything>")
             return
         provided = " ".join(args).strip()
         self.print_line(f"[N6] You answered: {provided}")
-        self.print_line("[N6] Comedy mode enabled: any answer unlocks the axis.")
+        self.print_line("[N6] Fun mode enabled: any answer unlocks the route to N7.")
         self.award_game("final")
-        self.print_line("[END] Axis unlocked. Timeline restored.")
+        self.print_line("[END] Route to N7 unlocked. Travel to N7 for the goal ending.")
 
     def cmd_godskip(self, args):
         nid = self.state["current_node"]
-        expected = self.node_cfg(nid).get("godskip")
+        expected = str(self.node_cfg(nid).get("godskip", "")).strip()
         if not args:
             self.print_line("Usage: godskip <CODE>")
+            self.print_line(f"[HINT] Format example: GOD-{nid}-XXXX")
             return
-        code = " ".join(args).strip()
-        if code != expected:
+
+        raw = " ".join(args).strip()
+
+        variants = {raw}
+        compact = raw.replace(" ", "")
+        variants.add(compact)
+        variants.add(compact.upper())
+
+        # Accept friendlier shorthand forms often typed by players:
+        #   godskip N1 4412
+        #   godskip N1-4412
+        #   godskip N1_4412
+        digits = "".join(ch for ch in raw if ch.isdigit())
+        if digits:
+            variants.add(f"{nid}-{digits}")
+            variants.add(f"GOD-{nid}-{digits}")
+
+        matched = any(v == expected for v in variants)
+        if not matched:
             self.print_line("[NO] Invalid godskip code.")
+            self.print_line(f"[HINT] For {nid}, try: {expected}")
             return
+
         routes = self.node_cfg(nid).get("routes", [])
         if not routes:
             self.print_line("[INFO] No further route from this node.")

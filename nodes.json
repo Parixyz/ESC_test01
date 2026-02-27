@@ -1,7 +1,9 @@
 {
   "meta": {
     "title": "Jack’s Time Terminal",
-    "hint_cooldown_seconds": 90
+    "hint_cooldown_seconds": 90,
+    "goal_node": "N7",
+    "timeline_anchor_year": 1970
   },
   "nodes": {
     "N1": {
@@ -30,31 +32,31 @@
         },
         {
           "speaker": "JESSICA",
-          "text": "Right. The 3 rectangles are warm anchors: red, orange, yellow. They may repeat without penalty."
+          "text": "Watch how the upper row behaves across cycles; it follows a tight warm triad."
         },
         {
           "speaker": "JESSICA",
-          "text": "The 3 triangles must stay cold, and no two triangles can share the same color in one scene."
+          "text": "Now watch the lower row: the cold tones obey a stricter rhythm than the row above."
         },
         {
           "speaker": "JESSICA",
-          "text": "Trust the clock: the minutes reveal how many cold triangle colors exist. Now answer directly—how many total combinations are possible?"
+          "text": "Trust the clock: the minutes tell you the size of one color pool. Then compute the total combinations."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "Use node time 04:10. Minutes = 10, so triangles draw from 10 cold colors.",
+          "text": "Start from time 04:10. Minutes (10) define the size of the cold-color pool.",
           "cost": 2
         },
         {
           "id": "h2",
-          "text": "There are 3 triangles with no repeats, so count ordered picks: 10 x 9 x 8.",
+          "text": "For the 3 lower shapes, order matters and colors do not repeat in one frame: 10 x 9 x 8.",
           "cost": 4
         },
         {
           "id": "h3",
-          "text": "There are 3 rectangles with red/orange/yellow and repeats allowed: 3 x 3 x 3. Multiply with the triangle count.",
+          "text": "For the 3 upper shapes, only three warm tones are used and repetition is possible: 3 x 3 x 3.",
           "cost": 6
         },
         {
@@ -71,7 +73,9 @@
           "token": "AURORA",
           "answer": 19440
         }
-      ]
+      ],
+      "year": 1970,
+      "era_story": "The UNIX epoch dawns soon; terminals are raw, loud, and full of possibility."
     },
     "N2": {
       "title": "Chess Switchyard (1930)",
@@ -123,7 +127,9 @@
           "token": "KNIGHT",
           "answer": "Ne7"
         }
-      ]
+      ],
+      "year": 1930,
+      "era_story": "Electromechanical logic is young—switches, relays, and chess-like planning shape computation."
     },
     "N3": {
       "title": "Code Observatory (2030)",
@@ -192,7 +198,9 @@
             }
           ]
         }
-      ]
+      ],
+      "year": 2030,
+      "era_story": "AI copilots and distributed systems reshape software decisions at planetary scale."
     },
     "N4": {
       "title": "Regex Drift (Timeless)",
@@ -248,7 +256,9 @@
           "token": "ANCHOR",
           "answer": "4 rounds of regex picks; scoring is dynamic"
         }
-      ]
+      ],
+      "year": 1998,
+      "era_story": "The web explodes; regex becomes everyday magic for logs, forms, and protocols."
     },
     "N5": {
       "title": "Strategic Loop (3000)",
@@ -307,61 +317,97 @@
           "token": "TRUST",
           "answer": "win the Nim run (take 1-3, last stone loses)"
         }
-      ]
+      ],
+      "year": 2140,
+      "era_story": "Strategy engines train with game theory to coordinate humans and autonomous systems."
     },
     "N6": {
-      "title": "The Axis (Final)",
-      "time": "00:00",
+      "title": "N6 Sequence Vault (1970)",
+      "time": "19:70",
       "godskip": "GOD-N6-0420",
-      "routes": [],
+      "routes": [
+        "N7"
+      ],
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "The Axis opens as a retro terminal carnival, half puzzle chamber and half stand-up club."
+          "text": "The vault door hisses open onto 1970: green phosphor glow, paper tape confetti, and a chalkboard of strange sequences."
         },
         {
           "speaker": "JESSICA",
-          "text": "{player}, final checkpoint: a stack of ridiculous computer riddles. Enjoy this one."
+          "text": "{player}, this is a fun detour before the goal. Four computer-science number riddles wait here."
         },
         {
           "speaker": "JACK",
-          "text": "After timeline surgery, we end with joke puzzles?"
+          "text": "So we solve patterns and still pass? No timeline explosion?"
         },
         {
           "speaker": "JESSICA",
-          "text": "Yes—and you earned the easy ending. Any unlock answer works here."
-        },
-        {
-          "speaker": "NARRATOR",
-          "text": "In the final log, computer science unfolds as a human story: curiosity, abstraction, and shared tools that scale imagination."
+          "text": "Exactly. Play for fun, learn the patterns, then unlock anyway."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "Type unlock <anything>. Comedy mode accepts any answer.",
+          "text": "Think powers of two, Fibonacci growth, and prime-like jumps seen in hashing tables.",
           "cost": 1
         },
         {
           "id": "h2",
-          "text": "Try silly inputs: unlock potato, unlock recursion, unlock coffee-overflow.",
+          "text": "Binary, hex, and recursion clues appear in the sequence cards on the right panel.",
           "cost": 1
         },
         {
           "id": "h3",
-          "text": "Riddles are for fun now—finish strong and enjoy the ending.",
+          "text": "You can still finish with unlock <anything> after exploring the riddles.",
           "cost": 1
         }
       ],
       "games": [
         {
           "id": "final",
-          "title": "Terminal Comedy Gauntlet",
+          "title": "Sequence Vault + CS Sudoku",
           "solve_points": 50,
           "token": "AXIS",
-          "answer": "any unlock answer works"
+          "answer": "any unlock answer works after sequence fun"
         }
-      ]
+      ],
+      "year": 1970,
+      "era_story": "Back at the epoch: from this checkpoint, sequence logic and playful puzzles bridge eras."
+    },
+    "N7": {
+      "title": "N7 The Axis Goal",
+      "time": "00:00",
+      "year": 2001,
+      "era_story": "The goal era celebrates computer science as a shared story: theory, systems, and people building together.",
+      "godskip": "GOD-N7-9000",
+      "routes": [],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "The final chamber is quiet. Fans spin like distant rain over a cathedral of servers."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "{player}, goal reached. You crossed decades of ideas, from relays to algorithms to playful logic."
+        },
+        {
+          "speaker": "JACK",
+          "text": "So this was never only about answers—it was about how computing evolved."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "Timeline log: 1930 relays, 1970 systems thinking, 1998 web scale, 2030 AI collaboration, and beyond."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "Type isGoal to compare your node time and timeline year against the goal.",
+          "cost": 0
+        }
+      ],
+      "games": []
     }
   }
 }
