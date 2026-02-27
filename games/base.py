@@ -27,6 +27,13 @@ class GameBase:
     def __init__(self, app):
         self.app = app
 
+    def safe_print(self, msg: str):
+        """Best-effort terminal print helper for game callbacks."""
+        try:
+            self.app.print_line(msg)
+        except Exception:
+            pass
+
     # ---- permissions ----
     def is_allowed_here(self) -> bool:
         """
