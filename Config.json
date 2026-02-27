@@ -408,7 +408,43 @@
           "token": "AXIS",
           "answer": "any unlock answer works"
         }
-      ]
+      ],
+      "year": 1970,
+      "era_story": "Back at the epoch: from this checkpoint, sequence logic and playful puzzles bridge eras."
+    },
+    "N7": {
+      "title": "N7 The Axis Goal",
+      "time": "00:00",
+      "year": 2001,
+      "era_story": "The goal era celebrates computer science as a shared story: theory, systems, and people building together.",
+      "godskip": "GOD-N7-9000",
+      "routes": [],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "The final chamber is quiet. Fans spin like distant rain over a cathedral of servers."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "{player}, goal reached. You crossed decades of ideas, from relays to algorithms to playful logic."
+        },
+        {
+          "speaker": "JACK",
+          "text": "So this was never only about answers—it was about how computing evolved."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "Timeline log: 1930 relays, 1970 systems thinking, 1998 web scale, 2030 AI collaboration, and beyond."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "Type isGoal to compare your node time and timeline year against the goal.",
+          "cost": 0
+        }
+      ],
+      "games": []
     }
   }
 }
