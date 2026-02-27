@@ -18,8 +18,8 @@ except Exception:
     pyttsx3 = None
 
 
-APP_BG = "#0a0f1a"
-APP_FG = "#00ff88"
+APP_BG = "#0f1726"
+APP_FG = "#d8f3ff"
 
 # Built-in encryption key (no password prompt).
 APP_SAVE_KEY = "Test"
@@ -45,6 +45,14 @@ class TimeTerminalApp:
         self.root.title(self.cfg.get("meta", {}).get("title", "Time Terminal"))
         self.root.geometry("1220x760")
         self.root.minsize(980, 600)
+
+        # cohesive dark-blue frame palette
+        try:
+            style = ttk.Style(self.root)
+            style.configure("App.TFrame", background="#101b2d")
+            style.configure("App.TLabel", background="#101b2d", foreground="#d8f3ff")
+        except Exception:
+            pass
 
         self.hint_cooldown = int(self.cfg.get("meta", {}).get("hint_cooldown_seconds", 300))
 
@@ -102,10 +110,10 @@ class TimeTerminalApp:
         from ui.terminal import TerminalView
         from ui.rightpanel import RightPanel
 
-        outer = ttk.Frame(self.root)
+        outer = ttk.Frame(self.root, style="App.TFrame")
         outer.pack(fill="both", expand=True)
 
-        left = ttk.Frame(outer)
+        left = ttk.Frame(outer, style="App.TFrame")
         left.pack(side="left", fill="both", expand=True)
 
         self.rightpanel = RightPanel(outer)
@@ -118,7 +126,7 @@ class TimeTerminalApp:
         self.terminal.pack(left)
         self.terminal.pack_input(left, self._on_enter)
 
-        self.status = ttk.Label(self.root, text="Ready", anchor="w")
+        self.status = ttk.Label(self.root, text="Ready", anchor="w", style="App.TLabel")
         self.status.pack(fill="x")
 
         self.ui = UIRefs(self.terminal, self.rightpanel)
@@ -153,6 +161,19 @@ class TimeTerminalApp:
 
     def node_time(self, node_id: str) -> str:
         return self.node_cfg(node_id).get("time", "??:??")
+
+    def node_year(self, node_id: str) -> int:
+        try:
+            return int(self.node_cfg(node_id).get("year", 0))
+        except Exception:
+            return 0
+
+    def format_story_text(self, text: str) -> str:
+        player = self.state.get("player_name") or "Traveler"
+        try:
+            return str(text).replace("{player}", player)
+        except Exception:
+            return str(text)
 
     # ---------------- typewriter + narration ----------------
     def _type_line(self, full_text: str, delay_ms: int = 14) -> int:
@@ -241,6 +262,12 @@ class TimeTerminalApp:
     def _persist(self):
         self._persist_with_repair()
 
+    def safe_autosave(self):
+        try:
+            self._persist()
+        except Exception:
+            pass
+
     def _on_close(self):
         try:
             if self.current_game is not None:
@@ -255,7 +282,7 @@ class TimeTerminalApp:
 
     # ---------------- boot flow ----------------
     def _boot(self):
-        self.print_line("Welcome to Jack’s Time Terminal.")
+        self.print_line("Welcome to Jack’s Time Terminal, a story-driven puzzle chronicle.")
         self.print_line("The narrator speaks first… because the world is frozen.\n")
 
         loaded = None
@@ -357,20 +384,23 @@ class TimeTerminalApp:
                 pass
 
         cls = self.game_registry[game_id]
-        g = cls(self)
-
-        # If your GameBase doesn't implement this, don't crash
-        if hasattr(g, "is_allowed_here") and not g.is_allowed_here():
-            self.print_line("[LOCKED] That game is not available in this node.")
-            self.rightpanel.clear()
-            return
-
-        self.current_game = g
-        self.current_game.mount(self.rightpanel.game_panel)
         try:
+            g = cls(self)
+
+            # If your GameBase doesn't implement this, don't crash
+            if hasattr(g, "is_allowed_here") and not g.is_allowed_here():
+                self.print_line("[LOCKED] That game is not available in this node.")
+                self.rightpanel.clear()
+                return
+
+            self.current_game = g
+            self.current_game.mount(self.rightpanel.game_panel)
             self.current_game.start()
-        except Exception:
-            pass
+        except Exception as e:
+            self.current_game = None
+            self.rightpanel.clear()
+            self.print_line(f"[ERR] Game failed to load safely: {e}")
+            return
 
         try:
             self.eventdb.log("mount_game", {"node": self.state["current_node"], "game": game_id})
@@ -384,7 +414,44 @@ class TimeTerminalApp:
 
     def cmd_time(self):
         nid = self.state["current_node"]
-        self.print_line(f"[TIME] Node {nid}: {self.node_time(nid)} (fixed)")
+        year = self.node_year(nid)
+        extra = f" | Year {year}" if year else ""
+        self.print_line(f"[TIME] Node {nid}: {self.node_time(nid)} (fixed){extra}")
+
+    def cmd_isgoal(self, args):
+        cur = self.state["current_node"]
+        goal = str(self.cfg.get("meta", {}).get("goal_node", "N7")).upper()
+        if goal not in self.cfg.get("nodes", {}):
+            self.print_line("[ERR] Goal node is not configured.")
+            return
+
+        cur_time = self.node_time(cur)
+        goal_time = self.node_time(goal)
+
+        def to_minutes(hhmm: str) -> int:
+            parts = str(hhmm).split(":", 1)
+            if len(parts) != 2:
+                return 0
+            return int(parts[0]) * 60 + int(parts[1])
+
+        try:
+            diff_min = abs(to_minutes(cur_time) - to_minutes(goal_time))
+        except Exception:
+            diff_min = 0
+
+        cur_year = self.node_year(cur)
+        goal_year = self.node_year(goal)
+        year_delta = abs(goal_year - cur_year)
+
+        self.print_line(f"[GOAL] Current node: {cur}  ->  Goal node: {goal}")
+        self.print_line(f"[GOAL] Time difference: {diff_min} minute(s).")
+        self.print_line(f"[GOAL] Timeline difference: {year_delta} year(s).")
+
+        era_story = self.node_cfg(cur).get("era_story")
+        if era_story:
+            self.print_line(f"[TIMELINE] {era_story}")
+        if cur == goal:
+            self.print_line("[GOAL] You are at the goal node.")
 
     def cmd_nodes(self):
         nodes = sorted(self.cfg.get("nodes", {}).keys())
@@ -475,7 +542,7 @@ class TimeTerminalApp:
 
                 line = lines[i] or {}
                 sp = line.get("speaker", "NARRATOR")
-                tx = line.get("text", "")
+                tx = self.format_story_text(line.get("text", ""))
 
                 # type this line, then schedule next after it finishes
                 dur = 0
@@ -496,7 +563,7 @@ class TimeTerminalApp:
 
         line = lines[idx] or {}
         sp = line.get("speaker", "NARRATOR")
-        tx = line.get("text", "")
+        tx = self.format_story_text(line.get("text", ""))
 
         if hasattr(self.terminal, "write_raw"):
             self._type_line(f"{sp}: {tx}", delay_ms=delay_ms)
@@ -605,14 +672,19 @@ class TimeTerminalApp:
             self.print_line("[HINT] No hints here.")
             return
 
-        if args:
-            wanted = str(args[0]).lower()
-            hint = next((h for h in hints if str(h.get("id", "")).lower() == wanted), None)
-            if not hint:
-                self.print_line("[ERR] Unknown hint id.")
-                return
-        else:
-            hint = hints[0]
+        # hint management: list available hints with ids/costs without charging
+        if not args:
+            self.print_line(f"Hints in {nid}:")
+            for h in hints:
+                self.print_line(f"  - {h.get('id','?')}: cost {int(h.get('cost',0))}")
+            self.print_line("Use: hint <id>")
+            return
+
+        wanted = str(args[0]).lower()
+        hint = next((h for h in hints if str(h.get("id", "")).lower() == wanted), None)
+        if not hint:
+            self.print_line("[ERR] Unknown hint id.")
+            return
 
         now = time.time()
         last = float(self.state.get("last_hint_ts", 0) or 0)
@@ -636,18 +708,22 @@ class TimeTerminalApp:
             self.print_line("[LOCKED] showcode is available in N3.")
             return
         if not args:
-            self.print_line("Usage: showcode <A|B|C|D>")
+            self.print_line("Usage: showcode <A|B|C>")
             return
 
         key = str(args[0]).upper()
-        if key not in {"A", "B", "C", "D"}:
-            self.print_line("Usage: showcode <A|B|C|D>")
+        if key not in {"A", "B", "C"}:
+            self.print_line("Usage: showcode <A|B|C>")
             return
 
         if self.current_game and hasattr(self.current_game, "show"):
             self.current_game.show(key)
         self.state.setdefault("answers", {})["N3_last_code"] = key
         self.print_line(f"[N3] Current code snippet: {key}")
+
+    def game_meta(self, node_id: str, game_id: str) -> dict:
+        games = self.node_cfg(node_id).get("games", [])
+        return next((g for g in games if g.get("id") == game_id), {})
 
     def cmd_solve(self, args):
         if not args:
@@ -662,13 +738,38 @@ class TimeTerminalApp:
                 self.print_line("[LOCKED] colors belongs to N1.")
                 return
             if not rest:
-                self.print_line("Usage: solve colors <MINUTES>")
+                self.print_line("Usage: solve colors <COMBINATIONS>")
                 return
-            minutes = self.node_time("N1").split(":")[-1]
-            if str(rest[0]) == str(int(minutes)) or str(rest[0]) == minutes:
+
+            meta = self.game_meta("N1", "colors")
+            configured = meta.get("answer")
+            if isinstance(configured, int):
+                expected = configured
+            else:
+                minutes = int(self.node_time("N1").split(":")[-1])
+                triangle_choices = minutes
+                rectangle_choices = 3
+
+                # three rectangles: red/orange/yellow with repeats allowed -> 3^3
+                rectangle_combos = rectangle_choices ** 3
+                # three triangles: cold colors, no duplicates -> n * (n-1) * (n-2)
+                triangle_combos = (
+                    triangle_choices
+                    * max(0, triangle_choices - 1)
+                    * max(0, triangle_choices - 2)
+                )
+                expected = rectangle_combos * triangle_combos
+
+            try:
+                guess = int(str(rest[0]).strip())
+            except Exception:
+                self.print_line("Usage: solve colors <COMBINATIONS>")
+                return
+
+            if guess == expected:
                 self.award_game("colors")
             else:
-                self.print_line("[NO] Incorrect.")
+                self.print_line("[NO] Incorrect combinations count.")
             return
 
         if kind == "chess":
@@ -679,7 +780,10 @@ class TimeTerminalApp:
                 self.print_line("Usage: solve chess <MOVE>")
                 return
             mv = str(rest[0]).replace("+", "").replace("#", "").strip().lower()
-            if mv in {"ne7", "nxe7", "e7"}:
+            configured = str(self.game_meta("N2", "chess").get("answer", "Ne7")).strip().lower()
+            accepted = {configured, configured.replace("n", "", 1), "n" + configured, "n" + configured.lstrip("n")}
+            accepted |= {"ne7", "nxe7", "e7"}
+            if mv in accepted:
                 self.award_game("chess")
             else:
                 self.print_line("[NO] Not the best fork.")
@@ -690,14 +794,50 @@ class TimeTerminalApp:
                 self.print_line("[LOCKED] code belongs to N3.")
                 return
             if len(rest) < 2:
-                self.print_line("Usage: solve code <A|B|C|D> <N#>")
+                self.print_line("Usage: solve code <A|B|C> <N#>")
                 return
+
             key = str(rest[0]).upper()
             node = str(rest[1]).upper()
-            if key in {"A", "B", "C", "D"} and node.startswith("N"):
-                self.award_game("codes")
+            cfg_ans = self.game_meta("N3", "codes").get("answer", [])
+            if isinstance(cfg_ans, dict):
+                cfg_ans = [cfg_ans]
+            if not isinstance(cfg_ans, list):
+                cfg_ans = [{"snippet": "A", "node": "N4"}]
+
+            expected_map = {
+                str(q.get("snippet", "")).upper(): str(q.get("node", "")).upper()
+                for q in cfg_ans
+                if isinstance(q, dict)
+            }
+            if key not in expected_map:
+                self.print_line("[NO] Unknown question id. Use A/B/C.")
+                return
+
+            answers = self.state.setdefault("answers", {})
+            solved = set(answers.get("N3_code_solved", []))
+            penalized = set(answers.get("N3_code_penalized", []))
+
+            if key in solved:
+                self.print_line(f"[INFO] Question {key} already solved.")
+                return
+
+            if node == expected_map[key]:
+                solved.add(key)
+                answers["N3_code_solved"] = sorted(solved)
+                remaining = [k for k in sorted(expected_map.keys()) if k not in solved]
+                if not remaining:
+                    self.award_game("codes")
+                else:
+                    self.print_line(f"[OK] {key} correct. Remaining: {', '.join(remaining)}")
             else:
-                self.print_line("[NO] Incorrect format.")
+                if key not in penalized:
+                    self.state["score"] = int(self.state.get("score", 0)) - 2
+                    penalized.add(key)
+                    answers["N3_code_penalized"] = sorted(penalized)
+                    self.print_line("[NO] Incorrect. First miss on this question: -2 score.")
+                else:
+                    self.print_line("[NO] Incorrect.")
             return
 
         if kind == "regex":
@@ -705,16 +845,33 @@ class TimeTerminalApp:
                 self.print_line("[LOCKED] regex belongs to N4.")
                 return
             if not rest:
-                self.print_line("Usage: solve regex <1|2|3|4>")
+                self.print_line("Usage: solve regex <1|2|3|4|5>")
                 return
+
+            answers = self.state.setdefault("answers", {})
+            if self.state.get("solved", {}).get("regex"):
+                self.print_line("[INFO] Regex already completed.")
+                return
+
             pick = str(rest[0])
-            answers = self.state.get("answers", {})
             chosen = answers.get("N4_regex_map", {}).get(pick)
             correct = answers.get("N4_regex_correct")
-            if chosen and correct and chosen == correct:
+            rounds = int(answers.get("N4_regex_rounds", 0))
+            delta = 2 if chosen and correct and chosen == correct else -2
+            self.state["score"] = int(self.state.get("score", 0)) + delta
+            answers["N4_regex_rounds"] = rounds + 1
+
+            if delta > 0:
+                self.print_line("[OK] Correct regex. +2 score.")
+            else:
+                self.print_line("[NO] Pattern mismatch. -2 score.")
+
+            remaining = 4 - (rounds + 1)
+            if remaining <= 0:
+                self.print_line("[INFO] Regex 4-riddle trial complete. Moving on.")
                 self.award_game("regex")
             else:
-                self.print_line("[NO] Pattern mismatch.")
+                self.print_line(f"[INFO] {remaining} regex rounds remaining.")
             return
 
         if kind == "tictactoe":
@@ -725,7 +882,7 @@ class TimeTerminalApp:
             if g and getattr(g, "game_id", "") == "tictactoe" and hasattr(g, "sequence_ok") and g.sequence_ok():
                 self.award_game("tictactoe")
             else:
-                self.print_line("[NO] Complete the board sequence first.")
+                self.print_line("[NO] Complete all 4 rounds in the grid trial first.")
             return
 
         if kind == "dilemma":
@@ -736,10 +893,56 @@ class TimeTerminalApp:
             if g and getattr(g, "game_id", "") == "dilemma" and hasattr(g, "success") and g.success():
                 self.award_game("dilemma")
             else:
-                self.print_line("[NO] Finish all rounds with higher score.")
+                self.print_line("[NO] Win Nim first. Think about first-vs-second and modulo-4 control.")
             return
 
         self.print_line("[ERR] Unknown solve target.")
+
+    def cmd_solvelose(self, args):
+        if not args:
+            self.print_line("Usage: solvelose <game_id>")
+            return
+
+        game_id = str(args[0]).lower()
+        nid = self.state.get("current_node", "N1")
+        meta = self.game_meta(nid, game_id)
+        if not meta:
+            self.print_line("[ERR] Game not in current node.")
+            return
+
+        answers = self.state.setdefault("answers", {})
+        key = f"solvelose_{nid}_{game_id}"
+        now = time.time()
+        started = float(answers.get(key, 0) or 0)
+        wait_s = 300
+
+        if not started:
+            answers[key] = now
+            self.print_line("[INFO] SolveLose started. Wait 5 minutes, then run the same command again to reveal answer.")
+            return
+
+        elapsed = int(now - started)
+        if elapsed < wait_s:
+            self.print_line(f"[WAIT] SolveLose unlocks in {wait_s - elapsed}s.")
+            return
+
+        answer = meta.get("answer", "(no answer configured)")
+        self.print_line(f"[REVEAL:{game_id}] {answer}")
+
+    def cmd_resetuser(self, args):
+        if not args or str(args[0]).upper() != "CONFIRM":
+            self.print_line("Usage: resetuser CONFIRM")
+            return
+
+        try:
+            if os.path.exists(self.save_path):
+                os.remove(self.save_path)
+        except Exception:
+            pass
+
+        self._reset_state_fresh()
+        self.print_line("[OK] User save reset. Enter a new name above to start over.")
+        self.terminal.show_namebar("Enter your name, then press Set.")
 
     def cmd_train(self, args):
         if not args:
@@ -779,18 +982,16 @@ class TimeTerminalApp:
 
     def cmd_unlock(self, args):
         if self.state["current_node"] != "N6":
-            self.print_line("[LOCKED] unlock is only available in N6.")
+            self.print_line("[LOCKED] unlock is only available in N6 (Sequence Vault).")
             return
         if not args:
-            self.print_line("Usage: unlock <password>")
+            self.print_line("Usage: unlock <anything>")
             return
-        expected = self._final_password()
         provided = " ".join(args).strip()
-        if provided != expected:
-            self.print_line("[NO] Wrong password.")
-            return
+        self.print_line(f"[N6] You answered: {provided}")
+        self.print_line("[N6] Fun mode enabled: any answer unlocks the route to N7.")
         self.award_game("final")
-        self.print_line("[END] Axis unlocked. Timeline restored.")
+        self.print_line("[END] Route to N7 unlocked. Travel to N7 for the goal ending.")
 
     def cmd_godskip(self, args):
         nid = self.state["current_node"]
