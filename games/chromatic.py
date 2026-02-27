@@ -79,10 +79,26 @@ class ChromaticDrift(GameBase):
     def _tick(self):
         if not self.running or not self.canvas:
             return
+        try:
+            if not int(self.canvas.winfo_exists()):
+                self.running = False
+                self.canvas = None
+                return
+        except Exception:
+            self.running = False
+            self.canvas = None
+            return
+
         self.tick += 1
 
         if self.tick % 2 == 0:
-            for item in self.canvas.find_all():
+            try:
+                items = self.canvas.find_all()
+            except Exception:
+                self.running = False
+                self.canvas = None
+                return
+            for item in items:
                 try:
                     if self.canvas.type(item) == "polygon":
                         self.canvas.itemconfig(item, fill=random.choice(self.palette))
