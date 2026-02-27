@@ -276,7 +276,7 @@ class TimeTerminalApp:
 
     # ---------------- boot flow ----------------
     def _boot(self):
-        self.print_line("Welcome to Jack’s Time Terminal.")
+        self.print_line("Welcome to Jack’s Time Terminal, a story-driven puzzle chronicle.")
         self.print_line("The narrator speaks first… because the world is frozen.\n")
 
         loaded = None
@@ -698,15 +698,24 @@ class TimeTerminalApp:
                 self.print_line("Usage: solve colors <COMBINATIONS>")
                 return
 
-            minutes = int(self.node_time("N1").split(":")[-1])
-            triangle_choices = minutes
-            rectangle_choices = 3
+            meta = self.game_meta("N1", "colors")
+            configured = meta.get("answer")
+            if isinstance(configured, int):
+                expected = configured
+            else:
+                minutes = int(self.node_time("N1").split(":")[-1])
+                triangle_choices = minutes
+                rectangle_choices = 3
 
-            # two rectangles: red/orange/yellow with repeats allowed -> 3^2
-            rectangle_combos = rectangle_choices ** 2
-            # two triangles: cold colors, no duplicate color -> n * (n-1)
-            triangle_combos = triangle_choices * max(0, triangle_choices - 1)
-            expected = rectangle_combos * triangle_combos
+                # three rectangles: red/orange/yellow with repeats allowed -> 3^3
+                rectangle_combos = rectangle_choices ** 3
+                # three triangles: cold colors, no duplicates -> n * (n-1) * (n-2)
+                triangle_combos = (
+                    triangle_choices
+                    * max(0, triangle_choices - 1)
+                    * max(0, triangle_choices - 2)
+                )
+                expected = rectangle_combos * triangle_combos
 
             try:
                 guess = int(str(rest[0]).strip())
@@ -816,7 +825,7 @@ class TimeTerminalApp:
 
             remaining = 4 - (rounds + 1)
             if remaining <= 0:
-                self.print_line("[INFO] Regex trial complete. Moving on.")
+                self.print_line("[INFO] Regex 4-riddle trial complete. Moving on.")
                 self.award_game("regex")
             else:
                 self.print_line(f"[INFO] {remaining} regex rounds remaining.")
@@ -845,6 +854,52 @@ class TimeTerminalApp:
             return
 
         self.print_line("[ERR] Unknown solve target.")
+
+    def cmd_solvelose(self, args):
+        if not args:
+            self.print_line("Usage: solvelose <game_id>")
+            return
+
+        game_id = str(args[0]).lower()
+        nid = self.state.get("current_node", "N1")
+        meta = self.game_meta(nid, game_id)
+        if not meta:
+            self.print_line("[ERR] Game not in current node.")
+            return
+
+        answers = self.state.setdefault("answers", {})
+        key = f"solvelose_{nid}_{game_id}"
+        now = time.time()
+        started = float(answers.get(key, 0) or 0)
+        wait_s = 300
+
+        if not started:
+            answers[key] = now
+            self.print_line("[INFO] SolveLose started. Wait 5 minutes, then run the same command again to reveal answer.")
+            return
+
+        elapsed = int(now - started)
+        if elapsed < wait_s:
+            self.print_line(f"[WAIT] SolveLose unlocks in {wait_s - elapsed}s.")
+            return
+
+        answer = meta.get("answer", "(no answer configured)")
+        self.print_line(f"[REVEAL:{game_id}] {answer}")
+
+    def cmd_resetuser(self, args):
+        if not args or str(args[0]).upper() != "CONFIRM":
+            self.print_line("Usage: resetuser CONFIRM")
+            return
+
+        try:
+            if os.path.exists(self.save_path):
+                os.remove(self.save_path)
+        except Exception:
+            pass
+
+        self._reset_state_fresh()
+        self.print_line("[OK] User save reset. Enter a new name above to start over.")
+        self.terminal.show_namebar("Enter your name, then press Set.")
 
     def cmd_train(self, args):
         if not args:

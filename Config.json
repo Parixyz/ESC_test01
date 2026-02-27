@@ -56,6 +56,11 @@
           "id": "h3",
           "text": "There are 3 rectangles with red/orange/yellow and repeats allowed: 3 x 3 x 3. Multiply with the triangle count.",
           "cost": 6
+        },
+        {
+          "id": "h4",
+          "text": "Stuck too long? You can use solvelose colors, but answer reveal unlocks only after 5 minutes.",
+          "cost": 8
         }
       ],
       "games": [
@@ -143,6 +148,10 @@
         {
           "speaker": "JESSICA",
           "text": "Yes. First wrong try on each question costs points—slow thinking beats fast typing."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "The wrong branch is never random; it is usually one assumption made too quickly."
         }
       ],
       "hints": [
@@ -208,6 +217,10 @@
         {
           "speaker": "JESSICA",
           "text": "Right. Four rounds total. You gain and lose score each round, so stay sharp."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "Each regex choice feels like choosing a language to describe chaos."
         }
       ],
       "hints": [
@@ -317,6 +330,10 @@
         {
           "speaker": "JESSICA",
           "text": "Yes—and you earned the easy ending. Any unlock answer works here."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "In the final log, computer science unfolds as a human story: curiosity, abstraction, and shared tools that scale imagination."
         }
       ],
       "hints": [

@@ -43,16 +43,16 @@ class ChromaticDrift(GameBase):
             parent,
             text=(
                 "Riddle: count every valid color combination.\n"
-                "Rectangles can be red/orange/yellow (repeats allowed).\n"
-                "Triangles use cold colors and can never match each other.\n"
+                "There are 3 rectangles (red/orange/yellow, repeats allowed).\n"
+                "There are 3 triangles (cold colors, no duplicates).\n"
                 "Node minutes hint how many triangle colors exist.\n"
-                "Solve via terminal: solve colors <COMBINATIONS>"
+                "Use: games -> play colors -> solve colors <COMBINATIONS>"
             ),
             wraplength=420,
             justify="left",
         ).pack(padx=12, pady=(0, 10), anchor="nw")
 
-        self.canvas = tk.Canvas(parent, width=440, height=310, bg="#07131f", highlightthickness=0)
+        self.canvas = tk.Canvas(parent, width=440, height=310, bg="#05111b", highlightthickness=0)
         self.canvas.pack(padx=12, pady=(0, 10), anchor="nw")
 
         row = ttk.Frame(parent)
@@ -88,24 +88,25 @@ class ChromaticDrift(GameBase):
         if not self.canvas:
             return
         self.canvas.delete("all")
-        self.canvas.create_rectangle(0, 0, 440, 310, fill="#07131f", outline="")
-        self.canvas.create_oval(-80, -110, 220, 180, fill="#0b2740", outline="")
-        self.canvas.create_oval(250, -100, 540, 190, fill="#11243d", outline="")
+        self.canvas.create_rectangle(0, 0, 440, 310, fill="#05111b", outline="")
+        self.canvas.create_oval(-90, -120, 220, 185, fill="#10324e", outline="")
+        self.canvas.create_oval(250, -105, 560, 200, fill="#1a3555", outline="")
+        self.canvas.create_rectangle(0, 248, 440, 310, fill="#0a1c2b", outline="")
 
-        r1 = random.choice(self.warm_palette)
-        r2 = random.choice(self.warm_palette)
-        t1 = random.choice(self.cool_palette)
-        t2_choices = [c for c in self.cool_palette if c != t1]
-        t2 = random.choice(t2_choices)
+        rect_colors = [random.choice(self.warm_palette) for _ in range(3)]
+        tri_colors = random.sample(self.cool_palette, 3)
 
-        self.canvas.create_rectangle(30, 40, 160, 120, fill=r1, outline="")
-        self.canvas.create_rectangle(180, 40, 310, 120, fill=r2, outline="")
-        self.canvas.create_polygon(90, 160, 140, 250, 40, 250, fill=t1, outline="")
-        self.canvas.create_polygon(240, 160, 290, 250, 190, 250, fill=t2, outline="")
+        self.canvas.create_rectangle(25, 42, 125, 112, fill=rect_colors[0], outline="", tags=("shape_rect",))
+        self.canvas.create_rectangle(155, 42, 255, 112, fill=rect_colors[1], outline="", tags=("shape_rect",))
+        self.canvas.create_rectangle(285, 42, 385, 112, fill=rect_colors[2], outline="", tags=("shape_rect",))
+
+        self.canvas.create_polygon(65, 158, 112, 238, 18, 238, fill=tri_colors[0], outline="", tags=("shape_tri",))
+        self.canvas.create_polygon(195, 158, 242, 238, 148, 238, fill=tri_colors[1], outline="", tags=("shape_tri",))
+        self.canvas.create_polygon(325, 158, 372, 238, 278, 238, fill=tri_colors[2], outline="", tags=("shape_tri",))
         self.canvas.create_text(
             220,
             285,
-            text="How many combinations can exist?",
+            text="3 rectangles + 3 triangles -> how many combinations?",
             fill="#d7f7ff",
             font=("Segoe UI", 10, "bold"),
         )
@@ -133,23 +134,23 @@ class ChromaticDrift(GameBase):
                 self.canvas = None
                 return
             try:
-                rects = [i for i in items if self.canvas.type(i) == "rectangle"]
-                tris = [i for i in items if self.canvas.type(i) == "polygon"]
+                rects = list(self.canvas.find_withtag("shape_rect"))
+                tris = list(self.canvas.find_withtag("shape_tri"))
 
-                for item in rects[-2:]:
+                for item in rects:
                     # rectangles: warm colors and duplicates allowed
                     self.canvas.itemconfig(item, fill=random.choice(self.warm_palette))
 
-                # triangles: cold colors and no duplicates
-                if len(tris) >= 2:
-                    c1 = random.choice(self.cool_palette)
-                    c2 = random.choice([c for c in self.cool_palette if c != c1])
+                # triangles: cold colors and no duplicates across all 3 triangles
+                if len(tris) >= 3:
+                    c1, c2, c3 = random.sample(self.cool_palette, 3)
                     self.canvas.itemconfig(tris[0], fill=c1)
                     self.canvas.itemconfig(tris[1], fill=c2)
+                    self.canvas.itemconfig(tris[2], fill=c3)
             except Exception:
                 pass
 
         try:
-            self.after_id = self.app.root.after(900, self._tick)
+            self.after_id = self.app.root.after(1200, self._tick)
         except Exception:
             self.running = False

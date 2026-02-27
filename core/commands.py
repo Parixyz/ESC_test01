@@ -159,12 +159,14 @@ class CommandRouter:
             ("hint",     "hint | hint h1",         "Use a hint (cooldown + score cost).",       lambda a, x: a.cmd_hint(x)),
             ("showcode", "showcode <A|B|C>",     "Show a code snippet (N3).",                 lambda a, x: a.cmd_showcode(x)),
             ("solve",    "solve ...",              "Solve puzzles.",                            lambda a, x: a.cmd_solve(x)),
+            ("solvelose","solvelose <game_id>",     "Reveal answer after 5-minute wait.",          lambda a, x: a.cmd_solvelose(x)),
             ("train",    "train dilemma",          "Training module.",                          lambda a, x: a.cmd_train(x)),
             ("ttt",      "ttt status|reset",       "TicTacToe utilities (N5).",                 lambda a, x: a.cmd_ttt(x)),
             ("unlock",   "unlock <anything>",      "Final unlock (N6).",                        lambda a, x: a.cmd_unlock(x)),
             ("godskip",  "godskip <CODE>",         "Dev skip.",                                 lambda a, x: a.cmd_godskip(x)),
             ("selftest", "selftest <PASSWORD>", "Run internal smoke tests (password required).",
              lambda a, x: a.cmd_selftest(x)),
+            ("resetuser","resetuser CONFIRM",      "Reset user save/profile.",                    lambda a, x: a.cmd_resetuser(x)),
         ]
 
         for name, usage, short, fn in hooks:
