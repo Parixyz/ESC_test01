@@ -14,47 +14,47 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "The Color Lab wakes like a theatre: ceiling strips hum alive, glass panels flare, and the air itself seems to hold its breath."
+          "text": "The lab lights flicker once, then settle into a slow pulse as if the room is breathing."
         },
         {
           "speaker": "NARRATOR",
-          "text": "Six shapes drift into formation—three rectangles above, three triangles below—like a lock waiting for the right count."
+          "text": "Panels of color glide across the walls, freezing for a heartbeat before shifting again."
         },
         {
           "speaker": "JESSICA",
-          "text": "Steady, {player}. This first node is a ritual of counting, not guessing."
+          "text": "Easy, Aria. This node is teaching you how time counts, not how to panic."
         },
         {
           "speaker": "ARIA",
-          "text": "Then every color change is a clue, not decoration."
+          "text": "So this is a puzzle wearing a light show."
         },
         {
           "speaker": "JESSICA",
-          "text": "Right. The 3 rectangles are warm anchors: red, orange, yellow. They may repeat without penalty."
+          "text": "Exactly. Rectangles are warm anchors with three options: red, orange, yellow. They may repeat."
         },
         {
           "speaker": "JESSICA",
-          "text": "The 3 triangles must stay cold, and no two triangles can share the same color in one scene."
+          "text": "Triangles stay in cold tones, and twins are forbidden there. Watch the clock minutes: that tells you how many cold exits exist."
         },
         {
           "speaker": "JESSICA",
-          "text": "Trust the clock: the minutes reveal how many cold triangle colors exist. Now answer directly—how many total combinations are possible?"
+          "text": "Now answer directly: how many total combinations can this scene make?"
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "Use node time 04:10. Minutes = 10, so triangles draw from 10 cold colors.",
+          "text": "Use node time 04:10. The minutes (10) are the number of available cold colors for triangles.",
           "cost": 2
         },
         {
           "id": "h2",
-          "text": "There are 3 triangles with no repeats, so count ordered picks: 10 x 9 x 8.",
+          "text": "Two triangles cannot share a color, so count ordered picks: 10 x 9.",
           "cost": 4
         },
         {
           "id": "h3",
-          "text": "There are 3 rectangles with red/orange/yellow and repeats allowed: 3 x 3 x 3. Multiply with the triangle count.",
+          "text": "Each rectangle can be red/orange/yellow and can duplicate: 3 x 3. Multiply rectangle and triangle counts.",
           "cost": 6
         }
       ],

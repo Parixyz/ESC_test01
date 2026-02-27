@@ -698,24 +698,15 @@ class TimeTerminalApp:
                 self.print_line("Usage: solve colors <COMBINATIONS>")
                 return
 
-            meta = self.game_meta("N1", "colors")
-            configured = meta.get("answer")
-            if isinstance(configured, int):
-                expected = configured
-            else:
-                minutes = int(self.node_time("N1").split(":")[-1])
-                triangle_choices = minutes
-                rectangle_choices = 3
+            minutes = int(self.node_time("N1").split(":")[-1])
+            triangle_choices = minutes
+            rectangle_choices = 3
 
-                # three rectangles: red/orange/yellow with repeats allowed -> 3^3
-                rectangle_combos = rectangle_choices ** 3
-                # three triangles: cold colors, no duplicates -> n * (n-1) * (n-2)
-                triangle_combos = (
-                    triangle_choices
-                    * max(0, triangle_choices - 1)
-                    * max(0, triangle_choices - 2)
-                )
-                expected = rectangle_combos * triangle_combos
+            # two rectangles: red/orange/yellow with repeats allowed -> 3^2
+            rectangle_combos = rectangle_choices ** 2
+            # two triangles: cold colors, no duplicate color -> n * (n-1)
+            triangle_combos = triangle_choices * max(0, triangle_choices - 1)
+            expected = rectangle_combos * triangle_combos
 
             try:
                 guess = int(str(rest[0]).strip())
