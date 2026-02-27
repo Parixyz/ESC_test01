@@ -1,0 +1,297 @@
+{
+  "meta": {
+    "title": "Jack’s Time Terminal",
+    "hint_cooldown_seconds": 300
+  },
+  "nodes": {
+    "N1": {
+      "title": "Color Lab (Present)",
+      "time": "04:10",
+      "godskip": "GOD-N1-4412",
+      "routes": [
+        "N2"
+      ],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "Jack blinks—then realizes the world is frozen mid-motion."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "Dust hangs in the air like pixels that never refresh."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Don’t panic. Time stuttered. You’re seeing the pause between ticks."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Who are you?"
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Jessica. I can’t pull you out—only guide you node by node."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Rule one: trust the clock. Time is never decoration here."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "The node time is fixed. Use the MINUTES as a number.",
+          "cost": 2
+        },
+        {
+          "id": "h2",
+          "text": "Triangles never repeat a color until the cycle is exhausted.",
+          "cost": 4
+        },
+        {
+          "id": "h3",
+          "text": "Two rectangles are anchors: red and orange never change.",
+          "cost": 6
+        }
+      ],
+      "games": [
+        {
+          "id": "colors",
+          "title": "Chromatic Drift",
+          "solve_points": 12,
+          "token": "AURORA"
+        }
+      ]
+    },
+    "N2": {
+      "title": "Chess Switchyard (1930)",
+      "time": "08:30",
+      "godskip": "GOD-N2-9901",
+      "routes": [
+        "N3"
+      ],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "Switchboards click like chess clocks. Every click is a branch."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "This node rewards precision. Think in moves and consequences."
+        },
+        {
+          "speaker": "JACK",
+          "text": "So… I fork time itself."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Exactly. A fork is one action attacking multiple futures."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "The winning move is a knight fork—king plus a major piece.",
+          "cost": 3
+        },
+        {
+          "id": "h2",
+          "text": "Write the move like Ne7 (piece + square).",
+          "cost": 5
+        }
+      ],
+      "games": [
+        {
+          "id": "chess",
+          "title": "Forked Timeline",
+          "solve_points": 15,
+          "token": "KNIGHT"
+        }
+      ]
+    },
+    "N3": {
+      "title": "Code Observatory (2030)",
+      "time": "20:30",
+      "godskip": "GOD-N3-1209",
+      "routes": [
+        "N4"
+      ],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "The walls are glass. Code is etched where advertisements should be."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "This node tests prediction. If you can predict the branch, you can escape the loop."
+        },
+        {
+          "speaker": "JACK",
+          "text": "So I’m debugging time."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "Run it mentally. Track the variable that decides the final node.",
+          "cost": 3
+        },
+        {
+          "id": "h2",
+          "text": "Watch modulo conditions; they decide which branch overwrites the destination.",
+          "cost": 6
+        }
+      ],
+      "games": [
+        {
+          "id": "codes",
+          "title": "Where Will Jack Go?",
+          "solve_points": 14,
+          "token": "TRACE"
+        }
+      ]
+    },
+    "N4": {
+      "title": "Regex Drift (Timeless)",
+      "time": "13:37",
+      "godskip": "GOD-N4-7770",
+      "routes": [
+        "N5"
+      ],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "Text rewrites itself like a memory trying to stabilize."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Patterns are gates. Choose wrong and the story continues—without reward."
+        },
+        {
+          "speaker": "JACK",
+          "text": "So it’s not fail-stop. It’s fail-soft."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "Anchor symbols: hyphen, digits, suffix. Don’t ignore boundaries ^ and $.",
+          "cost": 3
+        },
+        {
+          "id": "h2",
+          "text": "Pick the option that matches ALL generated strings, not just one.",
+          "cost": 6
+        }
+      ],
+      "games": [
+        {
+          "id": "regex",
+          "title": "Pattern Storm",
+          "solve_points": 10,
+          "token": "ANCHOR"
+        }
+      ]
+    },
+    "N5": {
+      "title": "Strategic Loop (3000)",
+      "time": "06:06",
+      "godskip": "GOD-N5-6606",
+      "routes": [
+        "N6"
+      ],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "A city of holograms negotiates with futures."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Two trials. One teaches that losing isn’t always losing."
+        },
+        {
+          "speaker": "JACK",
+          "text": "That sounds like a trap."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "It is. But it’s also a lesson about time: meaning depends on the scheme."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "TicTacToe sequence is derived from node time digits.",
+          "cost": 4
+        },
+        {
+          "id": "h2",
+          "text": "Sometimes you must lose a round to satisfy the sequence.",
+          "cost": 7
+        },
+        {
+          "id": "h3",
+          "text": "In the dilemma, your opponent mirrors you after round 1.",
+          "cost": 5
+        }
+      ],
+      "games": [
+        {
+          "id": "tictactoe",
+          "title": "Win/Lose Sequence",
+          "solve_points": 18,
+          "token": "PARADOX"
+        },
+        {
+          "id": "dilemma",
+          "title": "Iterated Dilemma",
+          "solve_points": 16,
+          "token": "TRUST"
+        }
+      ]
+    },
+    "N6": {
+      "title": "The Axis (Final)",
+      "time": "00:00",
+      "godskip": "GOD-N6-0420",
+      "routes": [],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "The final door is not a door."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "It is a choice written in a language time understands."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "If you made it here, you’ve collected fragments. Combine them—carefully."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Then the loop ends?"
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "Or it begins with you in control."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "Final password is a hash-derived phrase from your earned tokens.",
+          "cost": 10
+        }
+      ],
+      "games": [
+        {
+          "id": "final",
+          "title": "Axis Lock",
+          "solve_points": 50,
+          "token": "AXIS"
+        }
+      ]
+    }
+  }
+}
