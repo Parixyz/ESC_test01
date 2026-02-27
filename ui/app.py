@@ -930,8 +930,8 @@ class TimeTerminalApp:
         self.print_line(f"[REVEAL:{game_id}] {answer}")
 
     def cmd_resetuser(self, args):
-        if not args or str(args[0]).upper() != "CONFIRM":
-            self.print_line("Usage: resetuser CONFIRM")
+        if not args or str(args[0]) != "Ifuckedup":
+            self.print_line("Usage: resetuser Ifuckedup")
             return
 
         try:

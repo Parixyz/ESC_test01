@@ -43,9 +43,8 @@ class ChromaticDrift(GameBase):
             parent,
             text=(
                 "Riddle: count every valid color combination.\n"
-                "There are 3 rectangles (red/orange/yellow, repeats allowed).\n"
-                "There are 3 triangles (cold colors, no duplicates).\n"
-                "Node minutes hint how many triangle colors exist.\n"
+                "Observe both rows as colors cycle, then infer each row's rule.\n"
+                "The clock helps define one pool size.\n"
                 "Use: games -> play colors -> solve colors <COMBINATIONS>"
             ),
             wraplength=420,
@@ -106,7 +105,7 @@ class ChromaticDrift(GameBase):
         self.canvas.create_text(
             220,
             285,
-            text="3 rectangles + 3 triangles -> how many combinations?",
+            text="Two rows, six shapes: how many valid combinations?",
             fill="#d7f7ff",
             font=("Segoe UI", 10, "bold"),
         )
@@ -138,10 +137,10 @@ class ChromaticDrift(GameBase):
                 tris = list(self.canvas.find_withtag("shape_tri"))
 
                 for item in rects:
-                    # rectangles: warm colors and duplicates allowed
+                    # upper row color cycle
                     self.canvas.itemconfig(item, fill=random.choice(self.warm_palette))
 
-                # triangles: cold colors and no duplicates across all 3 triangles
+                # lower row color cycle
                 if len(tris) >= 3:
                     c1, c2, c3 = random.sample(self.cool_palette, 3)
                     self.canvas.itemconfig(tris[0], fill=c1)

@@ -167,7 +167,7 @@ class CommandRouter:
             ("godskip",  "godskip <CODE>",         "Dev skip (e.g. GOD-N1-4412).",             lambda a, x: a.cmd_godskip(x)),
             ("selftest", "selftest <PASSWORD>", "Run internal smoke tests (password required).",
              lambda a, x: a.cmd_selftest(x)),
-            ("resetuser","resetuser CONFIRM",      "Reset user save/profile.",                    lambda a, x: a.cmd_resetuser(x)),
+            ("resetuser","resetuser Ifuckedup",   "Reset user save/profile.",                    lambda a, x: a.cmd_resetuser(x)),
         ]
 
         for name, usage, short, fn in hooks:

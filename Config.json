@@ -32,31 +32,31 @@
         },
         {
           "speaker": "JESSICA",
-          "text": "Right. The 3 rectangles are warm anchors: red, orange, yellow. They may repeat without penalty."
+          "text": "Watch how the upper row behaves across cycles; it follows a tight warm triad."
         },
         {
           "speaker": "JESSICA",
-          "text": "The 3 triangles must stay cold, and no two triangles can share the same color in one scene."
+          "text": "Now watch the lower row: the cold tones obey a stricter rhythm than the row above."
         },
         {
           "speaker": "JESSICA",
-          "text": "Trust the clock: the minutes reveal how many cold triangle colors exist. Now answer directly—how many total combinations are possible?"
+          "text": "Trust the clock: the minutes tell you the size of one color pool. Then compute the total combinations."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "Use node time 04:10. Minutes = 10, so triangles draw from 10 cold colors.",
+          "text": "Start from time 04:10. Minutes (10) define the size of the cold-color pool.",
           "cost": 2
         },
         {
           "id": "h2",
-          "text": "There are 3 triangles with no repeats, so count ordered picks: 10 x 9 x 8.",
+          "text": "For the 3 lower shapes, order matters and colors do not repeat in one frame: 10 x 9 x 8.",
           "cost": 4
         },
         {
           "id": "h3",
-          "text": "There are 3 rectangles with red/orange/yellow and repeats allowed: 3 x 3 x 3. Multiply with the triangle count.",
+          "text": "For the 3 upper shapes, only three warm tones are used and repetition is possible: 3 x 3 x 3.",
           "cost": 6
         },
         {
