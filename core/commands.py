@@ -164,7 +164,7 @@ class CommandRouter:
             ("train",    "train dilemma",          "Training module.",                          lambda a, x: a.cmd_train(x)),
             ("ttt",      "ttt status|reset",       "TicTacToe utilities (N5).",                 lambda a, x: a.cmd_ttt(x)),
             ("unlock",   "unlock <anything>",      "Sequence vault unlock (N6).",               lambda a, x: a.cmd_unlock(x)),
-            ("godskip",  "godskip <CODE>",         "Dev skip.",                                 lambda a, x: a.cmd_godskip(x)),
+            ("godskip",  "godskip <CODE>",         "Dev skip (e.g. GOD-N1-4412).",             lambda a, x: a.cmd_godskip(x)),
             ("selftest", "selftest <PASSWORD>", "Run internal smoke tests (password required).",
              lambda a, x: a.cmd_selftest(x)),
             ("resetuser","resetuser CONFIRM",      "Reset user save/profile.",                    lambda a, x: a.cmd_resetuser(x)),

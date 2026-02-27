@@ -995,14 +995,34 @@ class TimeTerminalApp:
 
     def cmd_godskip(self, args):
         nid = self.state["current_node"]
-        expected = self.node_cfg(nid).get("godskip")
+        expected = str(self.node_cfg(nid).get("godskip", "")).strip()
         if not args:
             self.print_line("Usage: godskip <CODE>")
+            self.print_line(f"[HINT] Format example: GOD-{nid}-XXXX")
             return
-        code = " ".join(args).strip()
-        if code != expected:
+
+        raw = " ".join(args).strip()
+
+        variants = {raw}
+        compact = raw.replace(" ", "")
+        variants.add(compact)
+        variants.add(compact.upper())
+
+        # Accept friendlier shorthand forms often typed by players:
+        #   godskip N1 4412
+        #   godskip N1-4412
+        #   godskip N1_4412
+        digits = "".join(ch for ch in raw if ch.isdigit())
+        if digits:
+            variants.add(f"{nid}-{digits}")
+            variants.add(f"GOD-{nid}-{digits}")
+
+        matched = any(v == expected for v in variants)
+        if not matched:
             self.print_line("[NO] Invalid godskip code.")
+            self.print_line(f"[HINT] For {nid}, try: {expected}")
             return
+
         routes = self.node_cfg(nid).get("routes", [])
         if not routes:
             self.print_line("[INFO] No further route from this node.")
