@@ -1,4 +1,3 @@
-# games/regexstorm.py
 from __future__ import annotations
 
 import random
@@ -69,7 +68,6 @@ class RegexStorm(GameBase):
             return
 
         samples = self._new_samples()
-        # one true pattern + 4 distractors
         correct = r"^(TIME|NODE|JACK|ECHO|TRACE)-\d{2,4}[ABC]$"
         choices = [
             correct,
@@ -99,7 +97,6 @@ class RegexStorm(GameBase):
             pass
 
         try:
-            # slower pace so players can reason
             self.after_id = self.app.root.after(5500, self._tick)
         except Exception:
             self.running = False

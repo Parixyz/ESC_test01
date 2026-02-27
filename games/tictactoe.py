@@ -1,5 +1,3 @@
-# stub
-# games/tictactoe.py
 from __future__ import annotations
 
 import random
@@ -10,7 +8,7 @@ from games.base import GameBase
 
 class TicTacToeSequence(GameBase):
     game_id = "tictactoe"
-    title = "Crossroads Grid"
+    title = "Clockline Tic-Tac-Toe"
 
     def __init__(self, app):
         super().__init__(app)
@@ -20,6 +18,7 @@ class TicTacToeSequence(GameBase):
         self.rounds = 4
         self.round_index = 0
         self.results = []
+        self.target_bits = "1010"
         self.status_lbl = None
 
     def mount(self, parent):
@@ -30,8 +29,13 @@ class TicTacToeSequence(GameBase):
         )
         ttk.Label(
             parent,
-            text="Grid trial: survive four rounds under pressure.\nThen solve via terminal: solve tictactoe",
-            wraplength=420,
+            text=(
+                "Binary clock trial: 4 rounds become a 4-bit code.\n"
+                "Use W=1 and L=0, then match the target rhythm 1010.\n"
+                "Lesson: not always winning is best; timing pattern matters.\n"
+                "Then solve via terminal: solve tictactoe"
+            ),
+            wraplength=430,
             justify="left",
         ).pack(padx=12, pady=(0, 8), anchor="nw")
 
@@ -44,17 +48,31 @@ class TicTacToeSequence(GameBase):
             b.grid(row=i // 3, column=i % 3, padx=4, pady=4)
             self.buttons.append(b)
 
-        self.status_lbl = ttk.Label(parent, text=self._status_text(), wraplength=420, justify="left")
+        self.status_lbl = ttk.Label(parent, text=self._status_text(), wraplength=430, justify="left")
         self.status_lbl.pack(padx=12, pady=(0, 10), anchor="nw")
 
-        ttk.Button(parent, text="Reset", command=self._reset_round).pack(padx=12, pady=(0, 12), anchor="nw")
+        row = ttk.Frame(parent)
+        row.pack(padx=12, pady=(0, 12), anchor="nw")
+        ttk.Button(row, text="Reset Round", command=self._reset_round).pack(side="left")
+        ttk.Button(row, text="Reset 4-Round Trial", command=self._reset_trial).pack(side="left", padx=(8, 0))
+
+    def _bits(self):
+        return "".join("1" if r == "W" else "0" if r == "L" else "x" for r in self.results)
 
     def _status_text(self):
-        return f"Round {self.round_index+1}/{self.rounds} | Results: {''.join(self.results) or '(none)'}"
+        return (
+            f"Round {self.round_index+1}/{self.rounds} | Results: {''.join(self.results) or '(none)'}"
+            f" | Bits: {self._bits() or '(none)'} | Target: {self.target_bits}"
+        )
 
     def _update_status(self):
         if self.status_lbl:
             self.status_lbl.config(text=self._status_text())
+
+    def _reset_trial(self):
+        self.round_index = 0
+        self.results = []
+        self._reset_round()
 
     def _reset_round(self):
         self.board = [""] * 9
@@ -76,7 +94,8 @@ class TicTacToeSequence(GameBase):
 
         w = self._winner()
         if w:
-            self._end_round(w); return
+            self._end_round(w)
+            return
 
         self.turn = "O"
         try:
@@ -89,13 +108,15 @@ class TicTacToeSequence(GameBase):
             return
         moves = [i for i, v in enumerate(self.board) if not v]
         if not moves:
-            self._end_round("D"); return
+            self._end_round("D")
+            return
         m = random.choice(moves)
         self.board[m] = "O"
         self.buttons[m].config(text="O")
         w = self._winner()
         if w:
-            self._end_round(w); return
+            self._end_round(w)
+            return
         self.turn = "X"
 
     def _winner(self):
@@ -121,10 +142,15 @@ class TicTacToeSequence(GameBase):
             b.state(["disabled"])
 
         self.safe_print(f"[TTT] Round ended: {out}")
+        if self.round_index >= self.rounds:
+            bits = self._bits()
+            if bits == self.target_bits:
+                self.safe_print(f"[TTT] Binary clock matched target {self.target_bits}.")
+            else:
+                self.safe_print(f"[TTT] Pattern {bits} != {self.target_bits}. Reset 4-round trial and try again.")
         self._update_status()
         if hasattr(self.app, "safe_autosave"):
             self.app.safe_autosave()
 
     def sequence_ok(self):
-        # placeholder: accept any completed run for now
-        return self.round_index >= self.rounds
+        return self.round_index >= self.rounds and self._bits() == self.target_bits

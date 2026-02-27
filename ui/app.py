@@ -1,7 +1,7 @@
-# ui/app.py
 import os
 import time
 import hashlib
+import random
 import tkinter as tk
 from tkinter import ttk, messagebox
 
@@ -11,7 +11,6 @@ from core.storage import SaveManager, SavePaths
 from core.eventdb import EncryptedEventDB
 from core.commands import CommandRouter
 
-# TTS optional
 try:
     import pyttsx3
 except Exception:
@@ -21,8 +20,8 @@ except Exception:
 APP_BG = "#0f1726"
 APP_FG = "#d8f3ff"
 
-# Built-in encryption key (no password prompt).
 APP_SAVE_KEY = "Test"
+FUNNY_NAMES = ["CaptainPickle", "BinaryBanana", "SirLagALot", "NullNoodle", "PixelPenguin", "KernelPanicAtDisco", "404NotFoundGuy", "QuantumPotato", "TurboToaster", "BugMagnet"]
 
 
 class UIRefs:
@@ -35,18 +34,15 @@ class TimeTerminalApp:
     def __init__(self, root: tk.Tk, base_dir: str):
         self.root = root
         self.base_dir = base_dir
-        # typing lock (prevents garbled typewriter output)
         self._typing_busy = False
         self._typing_after_id = None
 
-        # config: Config.json
         self.cfg = ConfigLoader(base_dir).load()
 
         self.root.title(self.cfg.get("meta", {}).get("title", "Time Terminal"))
         self.root.geometry("1220x760")
         self.root.minsize(980, 600)
 
-        # cohesive dark-blue frame palette
         try:
             style = ttk.Style(self.root)
             style.configure("App.TFrame", background="#101b2d")
@@ -56,7 +52,6 @@ class TimeTerminalApp:
 
         self.hint_cooldown = int(self.cfg.get("meta", {}).get("hint_cooldown_seconds", 300))
 
-        # encryption + persistence paths
         self.save_dir = os.path.join(os.path.expanduser("~"), ".time_terminal_game")
         self.save_path = os.path.join(self.save_dir, "save.dat")
         self.db_path = os.path.join(self.save_dir, "events.db")
@@ -74,10 +69,8 @@ class TimeTerminalApp:
             save_dir=self.save_dir
         )
 
-        # state
         self._reset_state_fresh()
 
-        # tts
         self.tts_enabled = True
         self.tts_engine = None
         if pyttsx3 is not None:
@@ -86,7 +79,6 @@ class TimeTerminalApp:
             except Exception:
                 self.tts_engine = None
 
-        # games registry
         from games.chromatic import ChromaticDrift
         from games.chessfork import ChessFork
         from games.codeobs import CodeObservatory
@@ -106,7 +98,6 @@ class TimeTerminalApp:
         }
         self.current_game = None
 
-        # build UI
         from ui.terminal import TerminalView
         from ui.rightpanel import RightPanel
 
@@ -120,7 +111,6 @@ class TimeTerminalApp:
 
         self.terminal = TerminalView(left, APP_BG, APP_FG)
 
-        # Name text field at top (no popup)
         self.terminal.pack_namebar(left, self._on_set_name)
 
         self.terminal.pack(left)
@@ -134,10 +124,8 @@ class TimeTerminalApp:
 
         self.root.protocol("WM_DELETE_WINDOW", self._on_close)
 
-        # boot
         self._boot()
 
-    # ---------------- state ----------------
     def _reset_state_fresh(self):
         self.state = {
             "player_name": None,
@@ -152,7 +140,6 @@ class TimeTerminalApp:
             "vars": {}
         }
 
-    # ---------------- basic helpers ----------------
     def print_line(self, s: str):
         self.terminal.write_line(s)
 
@@ -175,13 +162,16 @@ class TimeTerminalApp:
         except Exception:
             return str(text)
 
-    # ---------------- typewriter + narration ----------------
+    def assign_funny_name(self) -> str:
+        name = random.choice(FUNNY_NAMES)
+        self.state["player_name"] = name
+        return name
+
     def _type_line(self, full_text: str, delay_ms: int = 14) -> int:
         """
         Typewriter animation into the terminal without interleaving.
         Returns estimated duration in ms for scheduling follow-ups.
         """
-        # If currently typing, fall back to normal line to avoid garbling
         if self._typing_busy or not hasattr(self.terminal, "write_raw"):
             self.print_line(full_text)
             return 0
@@ -189,7 +179,6 @@ class TimeTerminalApp:
         self._typing_busy = True
         i = 0
 
-        # duration estimate: chars * delay + newline + small cushion
         est_ms = max(0, len(full_text) * delay_ms + 80)
 
         def done():
@@ -211,13 +200,11 @@ class TimeTerminalApp:
     def narrate_line(self, speaker: str, text: str):
         line = f"{speaker}: {text}"
 
-        # Animated if possible (serialized)
         if hasattr(self.terminal, "write_raw"):
             self._type_line(line, delay_ms=14)
         else:
             self.print_line(line)
 
-        # TTS optional
         if not self.tts_enabled or self.tts_engine is None:
             return
         try:
@@ -238,7 +225,6 @@ class TimeTerminalApp:
             text=f"{self.state.get('player_name','?')} | Node {self.state['current_node']} ({self.node_time(self.state['current_node'])}) | Score {self.state['score']}"
         )
 
-    # ---------------- persistence ----------------
     def _persist_with_repair(self) -> bool:
         try:
             self.saver.save(self.state)
@@ -246,7 +232,6 @@ class TimeTerminalApp:
         except Exception:
             pass
 
-        # repair attempt
         try:
             os.makedirs(self.save_dir, exist_ok=True)
             try:
@@ -280,7 +265,6 @@ class TimeTerminalApp:
             pass
         self.root.destroy()
 
-    # ---------------- boot flow ----------------
     def _boot(self):
         self.print_line("Welcome to Jack’s Time Terminal, a story-driven puzzle chronicle.")
         self.print_line("The narrator speaks first… because the world is frozen.\n")
@@ -300,15 +284,16 @@ class TimeTerminalApp:
             return
 
         self._reset_state_fresh()
-        self.terminal.show_namebar("Enter your name, then press Set.")
-        self.print_line("[SETUP] No valid save found. Please enter your name in the field above.")
+        name = self.assign_funny_name()
+        self._persist_with_repair()
+        self.terminal.hide_namebar()
+        self.print_line(f"[PROFILE] Assigned fun name: {name}")
+        self.enter_node(self.state.get("current_node", "N1"))
+        self.terminal.focus()
 
     def _on_set_name(self):
-        name = self.terminal.name_var.get().strip()
-        if not name:
-            self.terminal.set_name_status("Name required.")
-            return
-
+        typed = self.terminal.name_var.get().strip()
+        name = typed or self.assign_funny_name()
         self.state["player_name"] = name
 
         ok = self._persist_with_repair()
@@ -329,7 +314,6 @@ class TimeTerminalApp:
         self.enter_node(self.state["current_node"])
         self.terminal.focus()
 
-    # ---------------- terminal input ----------------
     def _on_enter(self):
         cmd = self.terminal.input_var.get().strip()
         if not cmd:
@@ -338,15 +322,12 @@ class TimeTerminalApp:
         self.print_line(f"> {cmd}")
 
         if not self.state.get("player_name"):
-            self.print_line("[LOCKED] Enter your name in the field above first.")
-            self.terminal.show_namebar("Enter your name, then press Set.")
-            return
+            self.assign_funny_name()
 
         self.router.run(cmd)
         self._persist()
         self.update_status()
 
-    # ---------------- game / node flow ----------------
     def enter_node(self, node_id: str):
         if node_id not in self.cfg.get("nodes", {}):
             self.print_line(f"[ERR] Unknown node {node_id}")
@@ -387,7 +368,6 @@ class TimeTerminalApp:
         try:
             g = cls(self)
 
-            # If your GameBase doesn't implement this, don't crash
             if hasattr(g, "is_allowed_here") and not g.is_allowed_here():
                 self.print_line("[LOCKED] That game is not available in this node.")
                 self.rightpanel.clear()
@@ -407,7 +387,6 @@ class TimeTerminalApp:
         except Exception:
             pass
 
-    # ---------------- commands ----------------
     def cmd_status(self):
         self.update_status()
         self.print_line(self.status.cget("text"))
@@ -519,20 +498,17 @@ class TimeTerminalApp:
         if "story_index" not in self.state or not isinstance(self.state["story_index"], dict):
             self.state["story_index"] = {}
 
-        delay_ms = 14  # must match _type_line
-        gap_ms = 120  # pause between lines
+        delay_ms = 14
+        gap_ms = 120
 
         def line_duration(speaker: str, text: str) -> int:
-            # duration of typewriter for this line
             return max(0, len(f"{speaker}: {text}") * delay_ms + gap_ms)
 
-        # story all: reset to start and play full sequence (serialized)
         if args and str(args[0]).lower() == "all":
             self.state["story_index"][nid] = 0
 
             def play_all(i: int):
                 if i >= len(lines):
-                    # loop back to start (so next 'story' begins from line 0)
                     self.state["story_index"][nid] = 0
                     try:
                         self.eventdb.log("story_all", {"node": nid})
@@ -544,7 +520,6 @@ class TimeTerminalApp:
                 sp = line.get("speaker", "NARRATOR")
                 tx = self.format_story_text(line.get("text", ""))
 
-                # type this line, then schedule next after it finishes
                 dur = 0
                 if hasattr(self.terminal, "write_raw"):
                     dur = self._type_line(f"{sp}: {tx}", delay_ms=delay_ms)
@@ -556,7 +531,6 @@ class TimeTerminalApp:
             play_all(0)
             return
 
-        # story single step: loop at end
         idx = int(self.state["story_index"].get(nid, 0))
         if idx >= len(lines):
             idx = 0
@@ -622,7 +596,6 @@ class TimeTerminalApp:
                 failed += 1
 
         self.print_line(f"=== RESULT: {passed} passed, {failed} failed ===")
-    # ---------------- unlock / scoring helpers ----------------
     def unlock_node(self, node_id: str, reason: str):
         if node_id not in self.state["unlocked_nodes"]:
             self.state["unlocked_nodes"].append(node_id)
@@ -664,7 +637,6 @@ class TimeTerminalApp:
         for nxt in self.node_cfg(nid).get("routes", []):
             self.unlock_node(nxt, f"{game_id} solved")
 
-    # ---------------- existing commands you had (keep yours) ----------------
     def cmd_hint(self, args):
         nid = self.state["current_node"]
         hints = self.node_cfg(nid).get("hints", [])
@@ -672,7 +644,6 @@ class TimeTerminalApp:
             self.print_line("[HINT] No hints here.")
             return
 
-        # hint management: list available hints with ids/costs without charging
         if not args:
             self.print_line(f"Hints in {nid}:")
             for h in hints:
@@ -750,9 +721,7 @@ class TimeTerminalApp:
                 triangle_choices = minutes
                 rectangle_choices = 3
 
-                # three rectangles: red/orange/yellow with repeats allowed -> 3^3
                 rectangle_combos = rectangle_choices ** 3
-                # three triangles: cold colors, no duplicates -> n * (n-1) * (n-2)
                 triangle_combos = (
                     triangle_choices
                     * max(0, triangle_choices - 1)
@@ -886,14 +855,14 @@ class TimeTerminalApp:
             return
 
         if kind == "dilemma":
-            if self.state["current_node"] != "N5":
-                self.print_line("[LOCKED] dilemma belongs to N5.")
+            if self.state["current_node"] != "N6":
+                self.print_line("[LOCKED] dilemma belongs to N6.")
                 return
             g = self.current_game
             if g and getattr(g, "game_id", "") == "dilemma" and hasattr(g, "success") and g.success():
                 self.award_game("dilemma")
             else:
-                self.print_line("[NO] Win Nim first. Think about first-vs-second and modulo-4 control.")
+                self.print_line("[NO] Win Nim gauntlet first (3 runs). Think about first-vs-second and modulo-4 control.")
             return
 
         self.print_line("[ERR] Unknown solve target.")
@@ -941,8 +910,28 @@ class TimeTerminalApp:
             pass
 
         self._reset_state_fresh()
-        self.print_line("[OK] User save reset. Enter a new name above to start over.")
-        self.terminal.show_namebar("Enter your name, then press Set.")
+        name = self.assign_funny_name()
+        self._persist_with_repair()
+        self.terminal.hide_namebar()
+        self.print_line(f"[OK] User save reset. New fun name: {name}")
+        self.enter_node(self.state["current_node"])
+
+    def cmd_travelgod(self, args):
+        if len(args) < 2:
+            self.print_line("Usage: travelgod <N#> <CODE>")
+            return
+        node_id = str(args[0]).upper()
+        code = " ".join(args[1:]).strip()
+        if node_id not in self.cfg.get("nodes", {}):
+            self.print_line("[ERR] Unknown node.")
+            return
+        expected = str(self.node_cfg(node_id).get("godskip", "")).strip()
+        if code != expected:
+            self.print_line("[NO] Invalid travelGod code.")
+            self.print_line(f"[HINT] For {node_id}, use: {expected}")
+            return
+        self.unlock_node(node_id, "travelgod")
+        self.enter_node(node_id)
 
     def cmd_train(self, args):
         if not args:
@@ -981,17 +970,17 @@ class TimeTerminalApp:
             self.print_line("Usage: ttt status|reset")
 
     def cmd_unlock(self, args):
-        if self.state["current_node"] != "N6":
-            self.print_line("[LOCKED] unlock is only available in N6 (Sequence Vault).")
+        if self.state["current_node"] != "N7":
+            self.print_line("[LOCKED] unlock is only available in N7 (Goal).")
             return
         if not args:
             self.print_line("Usage: unlock <anything>")
             return
         provided = " ".join(args).strip()
-        self.print_line(f"[N6] You answered: {provided}")
-        self.print_line("[N6] Fun mode enabled: any answer unlocks the route to N7.")
+        self.print_line(f"[N7] You answered: {provided}")
+        self.print_line("[N7] Celebration mode: any answer completes the game.")
         self.award_game("final")
-        self.print_line("[END] Route to N7 unlocked. Travel to N7 for the goal ending.")
+        self.print_line("[END] Timeline restored. Everything is dancing.")
 
     def cmd_godskip(self, args):
         nid = self.state["current_node"]
@@ -1008,10 +997,6 @@ class TimeTerminalApp:
         variants.add(compact)
         variants.add(compact.upper())
 
-        # Accept friendlier shorthand forms often typed by players:
-        #   godskip N1 4412
-        #   godskip N1-4412
-        #   godskip N1_4412
         digits = "".join(ch for ch in raw if ch.isdigit())
         if digits:
             variants.add(f"{nid}-{digits}")

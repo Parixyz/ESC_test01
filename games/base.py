@@ -1,4 +1,3 @@
-# games/base.py
 from __future__ import annotations
 
 from typing import Optional, List
@@ -34,7 +33,6 @@ class GameBase:
         except Exception:
             pass
 
-    # ---- permissions ----
     def is_allowed_here(self) -> bool:
         """
         Enforce 'Some games are built-in but only playable in their node'.
@@ -46,9 +44,7 @@ class GameBase:
         cur = self.app.state.get("current_node")
         return cur in nodes
 
-    # ---- lifecycle ----
     def mount(self, parent):
-        # clear right-panel area (safe default)
         for w in parent.winfo_children():
             w.destroy()
 
@@ -58,6 +54,5 @@ class GameBase:
     def stop(self):
         pass
 
-    # ---- command interception (optional) ----
     def on_command(self, cmd: str, args: list[str]) -> bool:
         return False

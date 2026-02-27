@@ -1,4 +1,3 @@
-# stub
 import json
 import os
 
@@ -34,7 +33,6 @@ class ConfigLoader:
             except Exception:
                 continue
 
-        # If neither config exists, create canonical nodes.json
         target = os.path.join(self.base_dir, self.filename)
         with open(target, "w", encoding="utf-8") as f:
             json.dump(DEFAULT_CONFIG, f, ensure_ascii=False, indent=2)

@@ -32,7 +32,6 @@ PROJECT_TREE = {
 }
 
 MAIN_PY_STUB = """\
-# entrypoint stub
 def main():
     pass
 
@@ -46,11 +45,9 @@ CONFIG_JSON_STUB = {
         "hint_cooldown_seconds": 300
     },
     "nodes": {
-        # Fill with your nodes later
     }
 }
 
-# Optional: create a .gitignore too
 GITIGNORE = """\
 __pycache__/
 *.pyc
@@ -89,18 +86,14 @@ def touch_stub(path: Path, overwrite: bool = False) -> None:
 def main() -> None:
     root = Path.cwd()
 
-    # main.py
     write_file(root / "main.py", MAIN_PY_STUB, overwrite=False)
 
-    # Config.json (user requested Config.Json; Windows is case-insensitive, but keep exact)
     cfg_path = root / "Config.json"
     if not cfg_path.exists():
         cfg_path.write_text(json.dumps(CONFIG_JSON_STUB, indent=2), encoding="utf-8")
 
-    # .gitignore (optional)
     write_file(root / ".gitignore", GITIGNORE, overwrite=False)
 
-    # packages
     for folder, files in PROJECT_TREE.items():
         for fname in files:
             touch_stub(root / folder / fname, overwrite=False)

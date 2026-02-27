@@ -1,4 +1,3 @@
-# stub
 from tkinter import ttk
 
 class RightPanel:

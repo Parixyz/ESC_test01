@@ -1,4 +1,3 @@
-# games/chromatic.py
 from __future__ import annotations
 
 import random
@@ -11,7 +10,7 @@ from games.base import GameBase
 class ChromaticDrift(GameBase):
     game_id = "colors"
     title = "Chromatic Drift"
-    allowed_nodes = ["N1"]  # restrict to node N1 (optional but recommended)
+    allowed_nodes = ["N1"]
 
     def __init__(self, app):
         super().__init__(app)
@@ -137,10 +136,8 @@ class ChromaticDrift(GameBase):
                 tris = list(self.canvas.find_withtag("shape_tri"))
 
                 for item in rects:
-                    # upper row color cycle
                     self.canvas.itemconfig(item, fill=random.choice(self.warm_palette))
 
-                # lower row color cycle
                 if len(tris) >= 3:
                     c1, c2, c3 = random.sample(self.cool_palette, 3)
                     self.canvas.itemconfig(tris[0], fill=c1)

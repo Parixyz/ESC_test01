@@ -1,5 +1,3 @@
-# stub
-# games/chessfork.py
 from __future__ import annotations
 
 import tkinter as tk
@@ -21,7 +19,6 @@ class ChessFork(GameBase):
     def __init__(self, app):
         super().__init__(app)
         self.canvas = None
-        # minimal position
         self.position = {
             "f5": "N",
             "g8": "k",

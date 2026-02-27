@@ -261,8 +261,8 @@
       "era_story": "The web explodes; regex becomes everyday magic for logs, forms, and protocols."
     },
     "N5": {
-      "title": "Strategic Loop (3000)",
-      "time": "06:06",
+      "title": "Binary Clock Grid (3000)",
+      "time": "10:10",
       "godskip": "GOD-N5-6606",
       "routes": [
         "N6"
@@ -270,60 +270,53 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "A neon skyline flickers as two trials spin up side by side."
+          "text": "A clock wall flickers in binary columns while a tic-tac-toe table rises from the floor."
         },
         {
           "speaker": "JESSICA",
-          "text": "{player}, first complete the grid trial. Then enter Nim, where tempo decides everything."
+          "text": "{player}, time logic beats ego here: not every round should be a win."
         },
         {
           "speaker": "JACK",
-          "text": "So first-versus-second is the real puzzle."
+          "text": "So outcomes are bits? Win is 1, lose is 0?"
         },
         {
           "speaker": "JESSICA",
-          "text": "Exactly. I can guide your eyes, but only you can discover the winning rhythm."
+          "text": "Exactly. Build a 4-bit clock code from four rounds. The target rhythm is 1010."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "In the grid trial, finish all 4 rounds before solving.",
+          "text": "Map outcomes to bits: W=1, L=0. You need a 4-bit sequence.",
           "cost": 4
         },
         {
           "id": "h2",
-          "text": "In Nim, players remove 1-3 stones; whoever takes the last stone loses.",
-          "cost": 5
+          "text": "Target scheme is WIN, LOSE, WIN, LOSE — binary 1010.",
+          "cost": 6
         },
         {
           "id": "h3",
-          "text": "Think in modulo-4 control and whether you want first or second tempo.",
+          "text": "A draw breaks the pattern. Reset and replay the 4-round trial.",
           "cost": 7
         }
       ],
       "games": [
         {
           "id": "tictactoe",
-          "title": "Crossroads Grid",
+          "title": "Clockline Tic-Tac-Toe",
           "solve_points": 18,
           "token": "PARADOX",
-          "answer": "complete 4 rounds"
-        },
-        {
-          "id": "dilemma",
-          "title": "Nim Lab",
-          "solve_points": 16,
-          "token": "TRUST",
-          "answer": "win the Nim run (take 1-3, last stone loses)"
+          "answer": "W,L,W,L (binary 1010 over 4 rounds)"
         }
       ],
       "year": 2140,
       "era_story": "Strategy engines train with game theory to coordinate humans and autonomous systems."
     },
     "N6": {
-      "title": "N6 Sequence Vault (1970)",
-      "time": "19:70",
+      "title": "Nim Arena (1970)",
+      "time": "07:03",
       "godskip": "GOD-N6-0420",
       "routes": [
         "N7"
@@ -331,45 +324,89 @@
       "intro": [
         {
           "speaker": "NARRATOR",
-          "text": "The vault door hisses open onto 1970: green phosphor glow, paper tape confetti, and a chalkboard of strange sequences."
+          "text": "Three Nim terminals boot in a row, each demanding a clean strategic finish."
         },
         {
           "speaker": "JESSICA",
-          "text": "{player}, this is a fun detour before the goal. Four computer-science number riddles wait here."
+          "text": "{player}, this node is multiple trials: win Nim three times to prove control."
         },
         {
           "speaker": "JACK",
-          "text": "So we solve patterns and still pass? No timeline explosion?"
+          "text": "So one lucky game is not enough."
         },
         {
           "speaker": "JESSICA",
-          "text": "Exactly. Play for fun, learn the patterns, then unlock anyway."
+          "text": "Right. Tempo, modulo control, repeat. Win 3 runs, then travel onward."
         }
       ],
       "hints": [
         {
           "id": "h1",
-          "text": "Think powers of two, Fibonacci growth, and prime-like jumps seen in hashing tables.",
-          "cost": 1
+          "text": "Take 1-3 stones. The player who takes the last stone loses.",
+          "cost": 3
         },
         {
           "id": "h2",
-          "text": "Binary, hex, and recursion clues appear in the sequence cards on the right panel.",
-          "cost": 1
+          "text": "Control positions that leave 1 mod 4 to the opponent.",
+          "cost": 5
         },
         {
           "id": "h3",
-          "text": "You can still finish with unlock <anything> after exploring the riddles.",
-          "cost": 1
+          "text": "You must win 3 completed runs in this node.",
+          "cost": 6
+        }
+      ],
+      "games": [
+        {
+          "id": "dilemma",
+          "title": "Nim Lab",
+          "solve_points": 16,
+          "token": "TRUST",
+          "answer": "win 3 Nim runs"
+        }
+      ],
+      "year": 1970,
+      "era_story": "Back at the epoch: from this checkpoint, sequence logic and playful puzzles bridge eras."
+    },
+    "N7": {
+      "title": "N7 Dancing Goal",
+      "time": "00:00",
+      "year": 2001,
+      "era_story": "The goal era celebrates computer science as a shared story: theory, systems, and people building together.",
+      "godskip": "GOD-N7-9000",
+      "routes": [],
+      "intro": [
+        {
+          "speaker": "NARRATOR",
+          "text": "Lights burst into color and the whole terminal hall starts dancing in sync."
+        },
+        {
+          "speaker": "JESSICA",
+          "text": "{player}, goal reached. Every era you crossed is celebrating."
+        },
+        {
+          "speaker": "JACK",
+          "text": "Even the servers are dancing. We actually made it."
+        },
+        {
+          "speaker": "NARRATOR",
+          "text": "Victory log: strategy, timing, and patience restored the timeline. Everything is dancing."
+        }
+      ],
+      "hints": [
+        {
+          "id": "h1",
+          "text": "Type unlock <anything> to trigger the celebration ending.",
+          "cost": 0
         }
       ],
       "games": [
         {
           "id": "final",
-          "title": "Sequence Vault + CS Sudoku",
+          "title": "Celebration Unlock",
           "solve_points": 50,
           "token": "AXIS",
-          "answer": "any unlock answer works after sequence fun"
+          "answer": "any unlock answer works"
         }
       ],
       "year": 1970,
